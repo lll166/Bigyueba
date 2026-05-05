@@ -104,8 +104,13 @@
             animation: scorePulse 0.4s ease-out;
         }
         @keyframes scorePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.35); }
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.35);
+            }
         }
 
         .high-score-display {
@@ -234,58 +239,14 @@
         .game-over-high-score.new-record {
             animation: newRecordGlow 0.8s ease-in-out infinite alternate;
         }
-
-        /* 庆祝特效遮罩层 CSS */
-        .celebrate-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(20, 20, 24, 0.75);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            z-index: 25;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-            backdrop-filter: blur(2px);
-        }
-        .celebrate-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .celebrate-title {
-            font-size: 2.1rem;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 25px rgba(240, 184, 96, 0.9), 0 0 10px rgba(240, 184, 96, 0.7);
-            text-align: center;
-            margin-bottom: 16px;
-            letter-spacing: 1px;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 0 15px;
-        }
-        .celebrate-subtitle {
-            font-size: 1.05rem;
-            color: #f5eedc;
-            font-weight: bold;
-            text-shadow: 0 0 8px rgba(0,0,0,0.5);
-            animation: pulseText 1.5s infinite alternate;
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes pulseText {
-            0% { opacity: 0.4; transform: scale(0.98); }
-            100% { opacity: 1; transform: scale(1.02); }
-        }
         @keyframes newRecordGlow {
-            from { text-shadow: 0 0 8px rgba(196, 181, 224, 0.5); }
-            to { text-shadow: 0 0 24px rgba(210, 190, 240, 0.85), 0 0 40px rgba(180, 155, 220, 0.55); }
+            from {
+                text-shadow: 0 0 8px rgba(196, 181, 224, 0.5);
+            }
+            to {
+                text-shadow: 0 0 24px rgba(210, 190, 240, 0.85), 0 0 40px rgba(180, 155, 220, 0.55);
+            }
         }
-
         .restart-btn {
             padding: 14px 40px;
             font-size: 1.1rem;
@@ -321,13 +282,27 @@
         }
 
         @media (max-width: 380px) {
-            .game-header { padding: 6px 12px; border-radius: 16px; }
-            .score-value { font-size: 1.25rem; }
-            .next-icon-wrap { width: 34px; height: 34px; }
-            .game-over-title { font-size: 1.7rem; }
-            .celebrate-title { font-size: 1.6rem; }
-            .restart-btn { padding: 10px 30px; font-size: 0.95rem; }
-            .hint-text-outer { font-size: 0.68rem; }
+            .game-header {
+                padding: 6px 12px;
+                border-radius: 16px;
+            }
+            .score-value {
+                font-size: 1.25rem;
+            }
+            .next-icon-wrap {
+                width: 34px;
+                height: 34px;
+            }
+            .game-over-title {
+                font-size: 1.7rem;
+            }
+            .restart-btn {
+                padding: 10px 30px;
+                font-size: 0.95rem;
+            }
+            .hint-text-outer {
+                font-size: 0.68rem;
+            }
         }
     </style>
 </head>
@@ -352,12 +327,6 @@
 
         <div class="canvas-container" id="canvasContainer">
             <canvas id="gameCanvas"></canvas>
-            
-            <div class="celebrate-overlay" id="celebrateOverlay">
-                <div class="celebrate-title">恭喜你合成大月巴！</div>
-                <div class="celebrate-subtitle">点击屏幕继续游戏</div>
-            </div>
-
             <div class="game-over-overlay" id="gameOverOverlay">
                 <div class="game-over-title" id="gameOverTitle">游戏结束</div>
                 <div class="game-over-score" id="gameOverScore">得分：0</div>
@@ -379,47 +348,36 @@
             const nextPreviewImg = document.getElementById('nextPreviewImg');
             const nextPreviewWrap = document.getElementById('nextPreviewWrap');
             const gameOverOverlay = document.getElementById('gameOverOverlay');
-            const celebrateOverlay = document.getElementById('celebrateOverlay');
             const gameOverTitle = document.getElementById('gameOverTitle');
             const gameOverScore = document.getElementById('gameOverScore');
             const gameOverHighScore = document.getElementById('gameOverHighScore');
             const restartBtn = document.getElementById('restartBtn');
             const hintTextOuter = document.getElementById('hintTextOuter');
 
-            // ==========================================
-            // 音效配置（支持任意 HTTP/HTTPS MP3 外链）
-            // ==========================================
-            const AUDIO_URL = 'https://videotourl.com/audio/1778018991962-05128d2b-0a13-4ef8-a993-c7ac5d139a17.mp3'; 
-            const dropSound = new Audio(AUDIO_URL);
-            dropSound.crossOrigin = 'anonymous'; // 允许跨域加载
-
-            function playDropSound() {
-                // 使用 cloneNode 允许同一音效同时叠加播放，防止连续触发时被强制打断
-                const soundClone = dropSound.cloneNode();
-                soundClone.volume = 0.8;
-                soundClone.play().catch(() => {}); 
-            }
-
-            // 初始化音频上下文，解决部分浏览器限制
-            document.addEventListener('touchstart', function unlockAudio() {
-                dropSound.play().then(() => { dropSound.pause(); dropSound.currentTime = 0; }).catch(() => {});
-                document.removeEventListener('touchstart', unlockAudio);
-            }, { once: true });
-            // ==========================================
-
             const FRUIT_DATA = [
-                { name: '月巴1', radius: 17, color: '#c44b4b', glow: '#e88080', score: 1, imageUrl: 'https://img.heliar.top/file/1777999332387_1.jpg' },
-                { name: '月巴2', radius: 23, color: '#c94b4b', glow: '#e89090', score: 2, imageUrl: 'https://img.heliar.top/file/1777999331317_2.jpg' },
-                { name: '月巴3', radius: 29, color: '#7b4a9e', glow: '#b890d0', score: 4, imageUrl: 'https://img.heliar.top/file/1777999338153_3.jpg' },
-                { name: '月巴4', radius: 36, color: '#d4852a', glow: '#f0b860', score: 8, imageUrl: 'https://img.heliar.top/file/1777999337478_4.jpg' },
-                { name: '月巴5', radius: 44, color: '#b03a3a', glow: '#e87878', score: 16, imageUrl: 'https://img.heliar.top/file/1777999337162_5.jpg' },
-                { name: '月巴6', radius: 53, color: '#8da838', glow: '#c8d870', score: 32, imageUrl: 'https://img.heliar.top/file/1777999340463_6.jpg' },
-                { name: '月巴7', radius: 63, color: '#e0a890', glow: '#f8d4c0', score: 64, imageUrl: 'https://img.heliar.top/file/1777999344250_7.jpg' },
-                { name: '月巴8', radius: 74, color: '#d8b038', glow: '#f0d870', score: 128, imageUrl: 'https://img.heliar.top/file/1777999338141_8.jpg' },
-                { name: '月巴9', radius: 86, color: '#6aad5e', glow: '#98d888', score: 256, imageUrl: 'https://img.heliar.top/file/1777999341749_9.jpg' },
-                { name: '月巴10', radius: 100, color: '#3a7a3a', glow: '#70c870', score: 512, imageUrl: 'https://img.heliar.top/file/1777999348272_11.jpg' },
+                { name: '月巴1', radius: 17, color: '#c44b4b', glow: '#e88080', score: 1,
+                    imageUrl: 'https://img.heliar.top/file/1777999332387_1.jpg' },
+                { name: '月巴2', radius: 23, color: '#c94b4b', glow: '#e89090', score: 2,
+                    imageUrl: 'https://img.heliar.top/file/1777999331317_2.jpg' },
+                { name: '月巴3', radius: 29, color: '#7b4a9e', glow: '#b890d0', score: 4,
+                    imageUrl: 'https://img.heliar.top/file/1777999338153_3.jpg' },
+                { name: '月巴4', radius: 36, color: '#d4852a', glow: '#f0b860', score: 8,
+                    imageUrl: 'https://img.heliar.top/file/1777999337478_4.jpg' },
+                { name: '月巴5', radius: 44, color: '#b03a3a', glow: '#e87878', score: 16,
+                    imageUrl: 'https://img.heliar.top/file/1777999337162_5.jpg' },
+                { name: '月巴6', radius: 53, color: '#8da838', glow: '#c8d870', score: 32,
+                    imageUrl: 'https://img.heliar.top/file/1777999340463_6.jpg' },
+                { name: '月巴7', radius: 63, color: '#e0a890', glow: '#f8d4c0', score: 64,
+                    imageUrl: 'https://img.heliar.top/file/1777999344250_7.jpg' },
+                { name: '月巴8', radius: 74, color: '#d8b038', glow: '#f0d870', score: 128,
+                    imageUrl: 'https://img.heliar.top/file/1777999338141_8.jpg' },
+                { name: '月巴9', radius: 86, color: '#6aad5e', glow: '#98d888', score: 256,
+                    imageUrl: 'https://img.heliar.top/file/1777999341749_9.jpg' },
+                { name: '月巴10', radius: 100, color: '#3a7a3a', glow: '#70c870', score: 512,
+                    imageUrl: 'https://img.heliar.top/file/1777999348272_11.jpg' },
             ];
             const MAX_LEVEL = FRUIT_DATA.length - 1;
+
             const imageCache = {};
 
             function loadImage(url) {
@@ -434,14 +392,23 @@
             }
 
             function preloadAllImages() {
-                for (const data of FRUIT_DATA) { if (data.imageUrl) loadImage(data.imageUrl); }
+                for (const data of FRUIT_DATA) {
+                    if (data.imageUrl) loadImage(data.imageUrl);
+                }
             }
 
-            const STORAGE_KEY = 'mergeYueBaHighScore_v8';
-            function getHighScore() { try { const val = localStorage.getItem(STORAGE_KEY); return val ? parseInt(val) : 0; } catch (e) { return 0; } }
-            function setHighScore(val) { try { localStorage.setItem(STORAGE_KEY, val.toString()); } catch (e) {} }
+            const STORAGE_KEY = 'mergeYueBaHighScore_v6';
+
+            function getHighScore() {
+                try { const val = localStorage.getItem(STORAGE_KEY); return val ? parseInt(val) : 0; } catch (e) { return 0; }
+            }
+
+            function setHighScore(val) {
+                try { localStorage.setItem(STORAGE_KEY, val.toString()); } catch (e) {}
+            }
 
             let highScore = getHighScore();
+
             function updateHighScoreDisplay() { highScoreDisplay.textContent = highScore; }
 
             let fruits = [];
@@ -450,10 +417,6 @@
             let particles = [];
             let score = 0;
             let gameOver = false;
-            let canRestart = false; 
-            
-            let isCelebrating = false;
-            let celebrationInterval = null;
             let releaseCooldown = 0;
             let shakeAmount = 0;
             let shakeX = 0;
@@ -462,7 +425,6 @@
             let mergeChainCount = 0;
             let hintOpacity = 1;
             let hasFirstDrop = false;
-            let dangerTimer = 0;
 
             let canvasWidth = 375;
             let canvasHeight = 600;
@@ -480,7 +442,6 @@
             const FRICTION = 0.78;
             const FRUIT_FRUIT_RESTITUTION = 0.68;
             const RELEASE_COOLDOWN_FRAMES = 25;
-            const DANGER_TIMER_LIMIT = 90; 
 
             function resizeCanvas() {
                 const rect = container.getBoundingClientRect();
@@ -506,12 +467,10 @@
             }
 
             function initGame() {
-                hideCelebration(); 
                 fruits = [];
                 particles = [];
                 score = 0;
                 gameOver = false;
-                canRestart = false;
                 releaseCooldown = 0;
                 shakeAmount = 0;
                 shakeX = 0;
@@ -520,7 +479,6 @@
                 mergeChainCount = 0;
                 hintOpacity = 1;
                 hasFirstDrop = false;
-                dangerTimer = 0; 
                 nextFruitLevel = randomFruitLevel();
                 spawnPreviewFruit();
                 updateScoreDisplay();
@@ -530,29 +488,6 @@
                 gameOverHighScore.classList.remove('new-record');
                 hintTextOuter.style.opacity = '1';
                 resizeCanvas();
-            }
-
-            function showCelebration() {
-                if (isCelebrating) return;
-                isCelebrating = true;
-                celebrateOverlay.classList.add('active');
-                
-                celebrationInterval = setInterval(() => {
-                    if (!isCelebrating) {
-                        clearInterval(celebrationInterval);
-                        return;
-                    }
-                    const x = canvasWidth * 0.1 + Math.random() * canvasWidth * 0.8;
-                    const y = canvasHeight * 0.2 + Math.random() * canvasHeight * 0.5;
-                    spawnParticles(x, y, 15, '#f0b860', '#ffffff', 2.5);
-                }, 300);
-            }
-
-            function hideCelebration() {
-                if (!isCelebrating) return;
-                isCelebrating = false;
-                celebrateOverlay.classList.remove('active');
-                if (celebrationInterval) clearInterval(celebrationInterval);
             }
 
             function randomFruitLevel() {
@@ -586,12 +521,9 @@
             }
 
             function releaseFruit() {
-                if (gameOver || isCelebrating) return;
+                if (gameOver) return;
                 if (releaseCooldown > 0) return;
                 if (!previewFruit) return;
-                
-                playDropSound(); 
-
                 const level = previewFruit.level;
                 const data = FRUIT_DATA[level];
                 const fruit = {
@@ -637,10 +569,12 @@
                     const speed = (2 + Math.random() * 7) * intensity;
                     const life = 25 + Math.random() * 35;
                     particles.push({
-                        x, y,
+                        x,
+                        y,
                         vx: Math.cos(angle) * speed,
                         vy: Math.sin(angle) * speed - Math.random() * 4 * intensity,
-                        life, maxLife: life,
+                        life,
+                        maxLife: life,
                         radius: 1.5 + Math.random() * 4 * intensity,
                         color: Math.random() < 0.5 ? color : glowColor,
                         gravity: 0.06 + Math.random() * 0.08,
@@ -652,7 +586,9 @@
             function updateParticles() {
                 for (let i = particles.length - 1; i >= 0; i--) {
                     const p = particles[i];
-                    p.x += p.vx; p.y += p.vy; p.vy += p.gravity;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += p.gravity;
                     p.life--;
                     if (p.life <= 0) particles.splice(i, 1);
                 }
@@ -670,22 +606,29 @@
                     } else {
                         ctx.fillStyle = p.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
                     }
-                    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                    ctx.fill();
                     if (alpha > 0.4) {
                         ctx.fillStyle = `rgba(255,255,255,${alpha * 0.5})`;
-                        ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.5, 0, Math.PI * 2); ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, r * 0.5, 0, Math.PI * 2);
+                        ctx.fill();
                     }
                 }
             }
 
             function triggerShake(intensity) { shakeAmount = Math.max(shakeAmount, intensity); }
+
             function updateShake() {
                 if (shakeAmount > 0.01) {
                     shakeX = (Math.random() - 0.5) * shakeAmount * 2;
                     shakeY = (Math.random() - 0.5) * shakeAmount * 2;
                     shakeAmount *= 0.85;
                 } else {
-                    shakeX = 0; shakeY = 0; shakeAmount = 0;
+                    shakeX = 0;
+                    shakeY = 0;
+                    shakeAmount = 0;
                 }
             }
 
@@ -698,6 +641,7 @@
                     const byLevel = {};
                     for (const fruit of fruits) {
                         if (!fruit.exists) continue;
+                        if (fruit.mergeCooldown > 0) continue;
                         if (fruit.level >= MAX_LEVEL) continue;
                         const lv = fruit.level;
                         if (!byLevel[lv]) byLevel[lv] = [];
@@ -708,22 +652,25 @@
                         const sameLevelFruits = byLevel[levelKey];
                         if (sameLevelFruits.length < 3) continue;
                         const r = sameLevelFruits[0].radius;
-                        const contactThreshold = r * 2.8; 
+                        const contactThreshold = r * 2.55;
                         let foundTrio = null;
                         const n = sameLevelFruits.length;
                         for (let i = 0; i < n && !foundTrio; i++) {
                             const fi = sameLevelFruits[i];
+                            if (!fi.exists || fi.mergeCooldown > 0) continue;
                             for (let j = i + 1; j < n && !foundTrio; j++) {
                                 const fj = sameLevelFruits[j];
+                                if (!fj.exists || fj.mergeCooldown > 0) continue;
                                 const dij = Math.hypot(fi.x - fj.x, fi.y - fj.y);
-                                
+                                if (dij > contactThreshold) continue;
                                 for (let k = j + 1; k < n && !foundTrio; k++) {
                                     const fk = sameLevelFruits[k];
+                                    if (!fk.exists || fk.mergeCooldown > 0) continue;
                                     const dik = Math.hypot(fi.x - fk.x, fi.y - fk.y);
                                     const djk = Math.hypot(fj.x - fk.x, fj.y - fk.y);
                                     const contacts = (dij < contactThreshold ? 1 : 0) +
-                                                   (dik < contactThreshold ? 1 : 0) +
-                                                   (djk < contactThreshold ? 1 : 0);
+                                        (dik < contactThreshold ? 1 : 0) +
+                                        (djk < contactThreshold ? 1 : 0);
                                     if (contacts >= 2) {
                                         const cx = (fi.x + fj.x + fk.x) / 3;
                                         const cy = (fi.y + fj.y + fk.y) / 3;
@@ -744,34 +691,37 @@
                             const clampedY = Math.min(groundY - newRadius, Math.max(newRadius, cy));
                             const newFruit = {
                                 id: fruitIdCounter++,
-                                level: newLevel, x: clampedX, y: clampedY,
+                                level: newLevel,
+                                x: clampedX,
+                                y: clampedY,
                                 vx: cvx + (Math.random() - 0.5) * 1.5,
                                 vy: cvy - 3.0,
                                 radius: newRadius,
-                                color: newData.color, glow: newData.glow,
-                                name: newData.name, imageUrl: newData.imageUrl,
-                                mergeCooldown: 8, exists: true,
+                                color: newData.color,
+                                glow: newData.glow,
+                                name: newData.name,
+                                imageUrl: newData.imageUrl,
+                                mergeCooldown: 8,
+                                exists: true,
                             };
-                            f1.exists = false; f2.exists = false; f3.exists = false;
+                            f1.exists = false;
+                            f2.exists = false;
+                            f3.exists = false;
                             fruits.push(newFruit);
                             mergeChainCount++;
                             const particleIntensity = 1 + mergeChainCount * 0.5;
                             const particleCount = 28 + newLevel * 14 + mergeChainCount * 12;
-                            spawnParticles(clampedX, clampedY, particleCount, newData.color, newData.glow, particleIntensity);
+                            spawnParticles(clampedX, clampedY, particleCount, newData.color, newData.glow,
+                            particleIntensity);
                             triggerShake(4 + newLevel * 2.5 + mergeChainCount * 0.9);
                             const baseMergeScore = FRUIT_DATA[level].score * 3;
                             score += Math.floor(baseMergeScore * (1 + mergeChainCount * 0.65));
-                            
-                            // 庆祝最终极月巴合成
                             if (newLevel >= MAX_LEVEL) {
-                                spawnParticles(clampedX, clampedY, 120, '#e8d890', '#ffffff', 4);
-                                triggerShake(30);
+                                spawnParticles(clampedX, clampedY, 120, '#e8d890', '#ffffff', 3.5);
+                                triggerShake(26);
                                 score += 4000;
-                                showCelebration(); 
                             }
                             merged = true;
-                            
-                            playDropSound(); 
                             break;
                         }
                     }
@@ -782,6 +732,7 @@
             }
 
             function resolveFruitCollisions(fruitsArray, applyVelocity) {
+                // 将碰撞冗余设为0，严格保证“边缘不交错”
                 const collisionMargin = 0; 
                 for (let i = 0; i < fruitsArray.length; i++) {
                     if (!fruitsArray[i].exists) continue;
@@ -793,28 +744,29 @@
                         const dy = f2.y - f1.y;
                         const dist = Math.hypot(dx, dy);
                         const minDist = f1.radius + f2.radius + collisionMargin;
-                        
                         if (dist < minDist && dist > 0.0001) {
                             const overlap = minDist - dist;
-                            const nx = dx / dist; const ny = dy / dist;
-                            const m1 = f1.radius * f1.radius; const m2 = f2.radius * f2.radius;
+                            const nx = dx / dist;
+                            const ny = dy / dist;
+                            const m1 = f1.radius * f1.radius;
+                            const m2 = f2.radius * f2.radius;
                             const totalMass = m1 + m2;
-                            
-                            const correction = overlap;
-                            
-                            const sep1 = correction * (m2 / totalMass);
-                            const sep2 = correction * (m1 / totalMass);
-                            f1.x -= nx * sep1; f1.y -= ny * sep1;
-                            f2.x += nx * sep2; f2.y += ny * sep2;
-                            
+                            const sep1 = overlap * (m2 / totalMass);
+                            const sep2 = overlap * (m1 / totalMass);
+                            f1.x -= nx * sep1;
+                            f1.y -= ny * sep1;
+                            f2.x += nx * sep2;
+                            f2.y += ny * sep2;
                             if (applyVelocity) {
-                                const dvx = f1.vx - f2.vx; const dvy = f1.vy - f2.vy;
+                                const dvx = f1.vx - f2.vx;
+                                const dvy = f1.vy - f2.vy;
                                 const relVel = dvx * nx + dvy * ny;
                                 if (relVel > 0) {
-                                    const actualRestitution = relVel < 1.0 ? 0 : FRUIT_FRUIT_RESTITUTION;
-                                    const impulse = relVel * (1 + actualRestitution) / totalMass;
-                                    f1.vx -= impulse * m2 * nx; f1.vy -= impulse * m2 * ny;
-                                    f2.vx += impulse * m1 * nx; f2.vy += impulse * m1 * ny;
+                                    const impulse = relVel * (1 + FRUIT_FRUIT_RESTITUTION) / totalMass;
+                                    f1.vx -= impulse * m2 * nx;
+                                    f1.vy -= impulse * m2 * ny;
+                                    f2.vx += impulse * m1 * nx;
+                                    f2.vy += impulse * m1 * ny;
                                 }
                             }
                             f1.x = Math.max(f1.radius, Math.min(canvasWidth - f1.radius, f1.x));
@@ -827,30 +779,44 @@
             }
 
             function updatePhysics() {
+                // 1. 先进行基础的重力累加和位移计算
                 for (const fruit of fruits) {
                     if (!fruit.exists) continue;
-                    fruit.vy += GRAVITY; fruit.x += fruit.vx; fruit.y += fruit.vy;
-                    fruit.vx *= 0.995; fruit.vy *= 0.995;
+                    fruit.vy += GRAVITY;
+                    fruit.x += fruit.vx;
+                    fruit.y += fruit.vy;
+                    fruit.vx *= 0.998;
+                    fruit.vy *= 0.998;
                     
-                    if (fruit.x - fruit.radius < wallLeft) { fruit.x = wallLeft + fruit.radius; fruit.vx = Math.abs(fruit.vx) * WALL_RESTITUTION; }
-                    if (fruit.x + fruit.radius > wallRight) { fruit.x = wallRight - fruit.radius; fruit.vx = -Math.abs(fruit.vx) * WALL_RESTITUTION; }
-                    
+                    if (fruit.x - fruit.radius < wallLeft) {
+                        fruit.x = wallLeft + fruit.radius;
+                        fruit.vx = Math.abs(fruit.vx) * WALL_RESTITUTION;
+                    }
+                    if (fruit.x + fruit.radius > wallRight) {
+                        fruit.x = wallRight - fruit.radius;
+                        fruit.vx = -Math.abs(fruit.vx) * WALL_RESTITUTION;
+                    }
                     if (fruit.y + fruit.radius > groundY) {
-                        fruit.y = groundY - fruit.radius; 
-                        const actualRestitution = Math.abs(fruit.vy) < 1.5 ? 0 : GROUND_RESTITUTION;
-                        fruit.vy = -Math.abs(fruit.vy) * actualRestitution; 
+                        fruit.y = groundY - fruit.radius;
+                        fruit.vy = -Math.abs(fruit.vy) * GROUND_RESTITUTION;
                         fruit.vx *= FRICTION;
-                        if (Math.abs(fruit.vy) < 0.6) fruit.vy = 0; 
+                        if (Math.abs(fruit.vy) < 0.6) fruit.vy = 0;
                         if (Math.abs(fruit.vx) < 0.2) fruit.vx = 0;
                     }
-                    if (fruit.y - fruit.radius < -fruit.radius * 2) { fruit.y = -fruit.radius * 2 + fruit.radius; fruit.vy = Math.abs(fruit.vy) * 0.3; }
+                    if (fruit.y - fruit.radius < -fruit.radius * 2) {
+                        fruit.y = -fruit.radius * 2 + fruit.radius;
+                        fruit.vy = Math.abs(fruit.vy) * 0.3;
+                    }
                     if (fruit.mergeCooldown > 0) fruit.mergeCooldown--;
                 }
-                
+
+                // 2. 解析速度（碰撞反弹） - 仅执行1次
                 resolveFruitCollisions(fruits, true);
                 
+                // 3. 多次迭代位置解析：彻底解决刚体堆叠交错（重合）问题
                 for (let iter = 0; iter < 8; iter++) {
                     resolveFruitCollisions(fruits, false);
+                    // 确保修正后仍然在边界内
                     for (const fruit of fruits) {
                         if (!fruit.exists) continue;
                         if (fruit.x - fruit.radius < wallLeft) fruit.x = wallLeft + fruit.radius;
@@ -858,35 +824,20 @@
                         if (fruit.y + fruit.radius > groundY) fruit.y = groundY - fruit.radius;
                     }
                 }
-                
-                for (const fruit of fruits) {
-                    if (!fruit.exists) continue;
-                    if (Math.abs(fruit.vx) < 0.05) fruit.vx = 0;
-                    if (Math.abs(fruit.vy) < 0.05) fruit.vy = 0;
-                }
             }
 
             function checkGameOver() {
-                if (gameOver || isCelebrating) return; 
+                if (gameOver) return;
                 if (!hasFirstDrop) return;
                 if (releaseCooldown > 0) return;
                 
-                let isAnyAboveLine = false;
                 for (const fruit of fruits) {
                     if (!fruit.exists) continue;
-                    if (fruit.y - fruit.radius <= dangerLineY) {
-                        isAnyAboveLine = true;
-                        break;
-                    }
-                }
-                
-                if (isAnyAboveLine) {
-                    dangerTimer++;
-                    if (dangerTimer >= DANGER_TIMER_LIMIT) {
+                    // 修改了结束判定：只要有任意月巴的【最顶部边缘】超过（即坐标小于）警戒线，并且基本处于静止状态，即判定失败
+                    if (fruit.y - fruit.radius <= dangerLineY && Math.abs(fruit.vy) < 0.5 && Math.abs(fruit.vx) < 0.5) {
                         endGame('这里有太多的月巴！');
+                        return;
                     }
-                } else {
-                    dangerTimer = 0; 
                 }
             }
 
@@ -894,131 +845,338 @@
                 gameOver = true;
                 gameOverTitle.textContent = message;
                 gameOverScore.textContent = '得分：' + score;
-                
                 let isNewRecord = false;
-                if (score > highScore) { highScore = score; setHighScore(highScore); updateHighScoreDisplay(); isNewRecord = true; }
+                if (score > highScore) {
+                    highScore = score;
+                    setHighScore(highScore);
+                    updateHighScoreDisplay();
+                    isNewRecord = true;
+                }
                 gameOverHighScore.textContent = '最高分：' + highScore;
-                if (isNewRecord) { gameOverHighScore.classList.add('new-record'); } else { gameOverHighScore.classList.remove('new-record'); }
-                
+                if (isNewRecord) {
+                    gameOverHighScore.classList.add('new-record');
+                } else {
+                    gameOverHighScore.classList.remove('new-record');
+                }
                 gameOverOverlay.classList.add('active');
                 hintTextOuter.style.opacity = '0';
                 triggerShake(6);
-                
-                canRestart = false;
-                setTimeout(() => { canRestart = true; }, 800);
-                
                 for (const fruit of fruits) {
-                    if (fruit.exists && fruit.y < dangerLineY + 100 * dpr) { spawnParticles(fruit.x, fruit.y, 10, '#c4b5e0', '#e8ddf8', 0.8); }
+                    if (fruit.exists && fruit.y < dangerLineY + 100 * dpr) {
+                        spawnParticles(fruit.x, fruit.y, 10, '#c4b5e0', '#e8ddf8', 0.8);
+                    }
                 }
             }
 
             function drawFruit(ctx, fruit, alpha = 1) {
-                const { x, y, radius, imageUrl } = fruit; const r = radius;
-                ctx.save(); ctx.globalAlpha = alpha;
-                ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = r * 0.18; ctx.shadowOffsetX = r * 0.04; ctx.shadowOffsetY = r * 0.07;
+                const { x, y, radius, imageUrl } = fruit;
+                const r = radius;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.shadowColor = 'rgba(0,0,0,0.25)';
+                ctx.shadowBlur = r * 0.18;
+                ctx.shadowOffsetX = r * 0.04;
+                ctx.shadowOffsetY = r * 0.07;
                 const baseGrad = ctx.createRadialGradient(x - r * 0.2, y - r * 0.25, r * 0.05, x, y, r);
-                baseGrad.addColorStop(0, 'rgba(55,52,60,0.7)'); baseGrad.addColorStop(0.6, 'rgba(40,38,45,0.88)'); baseGrad.addColorStop(1, 'rgba(28,27,33,0.96)');
-                ctx.fillStyle = baseGrad; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-                ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-                const img = loadImage(imageUrl); const innerR = r * 0.93;
+                baseGrad.addColorStop(0, 'rgba(55,52,60,0.7)');
+                baseGrad.addColorStop(0.6, 'rgba(40,38,45,0.88)');
+                baseGrad.addColorStop(1, 'rgba(28,27,33,0.96)');
+                ctx.fillStyle = baseGrad;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+                const img = loadImage(imageUrl);
+                const innerR = r * 0.93;
                 if (img && img.complete && img.naturalWidth > 0) {
-                    ctx.save(); ctx.beginPath(); ctx.arc(x, y, innerR, 0, Math.PI * 2); ctx.clip();
-                    const imgSize = innerR * 2; ctx.drawImage(img, x - imgSize / 2, y - imgSize / 2, imgSize, imgSize);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(x, y, innerR, 0, Math.PI * 2);
+                    ctx.clip();
+                    const imgSize = innerR * 2;
+                    ctx.drawImage(img, x - imgSize / 2, y - imgSize / 2, imgSize, imgSize);
                     ctx.restore();
                 }
-                ctx.strokeStyle = 'rgba(170,160,188,0.88)'; ctx.lineWidth = r * 0.07; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
-                ctx.strokeStyle = 'rgba(190,182,206,0.6)'; ctx.lineWidth = r * 0.03; ctx.beginPath(); ctx.arc(x, y, innerR + r * 0.018, 0, Math.PI * 2); ctx.stroke();
-                const hlGrad = ctx.createRadialGradient(x - r * 0.28, y - r * 0.32, r * 0.02, x - r * 0.15, y - r * 0.2, r * 0.55);
-                hlGrad.addColorStop(0, 'rgba(255,255,255,0.4)'); hlGrad.addColorStop(0.5, 'rgba(255,255,255,0.1)'); hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = hlGrad; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = 'rgba(170,160,188,0.88)';
+                ctx.lineWidth = r * 0.07;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.strokeStyle = 'rgba(190,182,206,0.6)';
+                ctx.lineWidth = r * 0.03;
+                ctx.beginPath();
+                ctx.arc(x, y, innerR + r * 0.018, 0, Math.PI * 2);
+                ctx.stroke();
+                const hlGrad = ctx.createRadialGradient(
+                    x - r * 0.28, y - r * 0.32, r * 0.02,
+                    x - r * 0.15, y - r * 0.2, r * 0.55
+                );
+                hlGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
+                hlGrad.addColorStop(0.5, 'rgba(255,255,255,0.1)');
+                hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = hlGrad;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
                 ctx.restore();
             }
 
             function drawBackground(ctx) {
                 const bgGrad = ctx.createLinearGradient(0, 0, 0, canvasHeight);
-                bgGrad.addColorStop(0, 'rgba(28,27,33,0.85)'); bgGrad.addColorStop(0.5, 'rgba(32,31,38,0.9)'); bgGrad.addColorStop(1, 'rgba(24,23,29,0.92)');
-                ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                ctx.fillStyle = 'rgba(190,180,210,0.012)'; const dotSpacing = 18 * dpr;
+                bgGrad.addColorStop(0, 'rgba(28,27,33,0.85)');
+                bgGrad.addColorStop(0.5, 'rgba(32,31,38,0.9)');
+                bgGrad.addColorStop(1, 'rgba(24,23,29,0.92)');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+                ctx.fillStyle = 'rgba(190,180,210,0.012)';
+                const dotSpacing = 18 * dpr;
                 for (let dx = dotSpacing; dx < canvasWidth; dx += dotSpacing) {
                     for (let dy = dotSpacing; dy < canvasHeight; dy += dotSpacing) {
-                        ctx.beginPath(); ctx.arc(dx, dy, 0.5 * dpr, 0, Math.PI * 2); ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(dx, dy, 0.5 * dpr, 0, Math.PI * 2);
+                        ctx.fill();
                     }
                 }
             }
 
             function drawDangerLine(ctx) {
-                const y = dangerLineY; ctx.strokeStyle = 'rgba(255,120,120,0.55)'; ctx.lineWidth = 2 * dpr; ctx.setLineDash([12 * dpr, 8 * dpr]);
-                ctx.lineDashOffset = -Date.now() / 1000 * 20 * dpr; ctx.beginPath(); ctx.moveTo(10 * dpr, y); ctx.lineTo(canvasWidth - 10 * dpr, y); ctx.stroke();
-                ctx.setLineDash([]); ctx.lineDashOffset = 0;
-                const fontSize = 11 * dpr; ctx.fillStyle = 'rgba(255,140,140,0.6)'; ctx.font = `bold ${fontSize}px sans-serif`; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+                const y = dangerLineY;
+                ctx.strokeStyle = 'rgba(255,120,120,0.55)';
+                ctx.lineWidth = 2 * dpr;
+                ctx.setLineDash([12 * dpr, 8 * dpr]);
+                ctx.lineDashOffset = -Date.now() / 1000 * 20 * dpr;
+                ctx.beginPath();
+                ctx.moveTo(10 * dpr, y);
+                ctx.lineTo(canvasWidth - 10 * dpr, y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.lineDashOffset = 0;
+                const fontSize = 11 * dpr;
+                ctx.fillStyle = 'rgba(255,140,140,0.6)';
+                ctx.font = `bold ${fontSize}px "PingFang SC","Microsoft YaHei",sans-serif`;
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
                 ctx.fillText('⚠ 警戒线', canvasWidth - 14 * dpr, y - 4 * dpr);
             }
 
             function render() {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight); ctx.save(); if (shakeAmount > 0.01) ctx.translate(shakeX, shakeY);
-                drawBackground(ctx); drawDangerLine(ctx);
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctx.save();
+                if (shakeAmount > 0.01) ctx.translate(shakeX, shakeY);
+                drawBackground(ctx);
+                drawDangerLine(ctx);
                 const sortedFruits = [...fruits].filter(f => f.exists).sort((a, b) => a.y - b.y);
-                for (const fruit of sortedFruits) { drawFruit(ctx, fruit, 1); }
-                if (previewFruit && !gameOver && !isCelebrating && releaseCooldown <= 0) {
-                    const previewAlpha = 0.7 + Math.sin(Date.now() / 400) * 0.15; drawFruit(ctx, previewFruit, previewAlpha);
-                    const px = previewFruit.x; const py = previewFruit.y + previewFruit.radius;
-                    ctx.strokeStyle = 'rgba(190,180,210,0.3)'; ctx.lineWidth = 1.2 * dpr; ctx.setLineDash([5 * dpr, 8 * dpr]);
-                    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + 28 * dpr); ctx.stroke(); ctx.setLineDash([]);
+                for (const fruit of sortedFruits) {
+                    drawFruit(ctx, fruit, 1);
                 }
-                drawParticles(ctx); ctx.restore();
-                const topGrad = ctx.createLinearGradient(0, 0, 0, dangerLineY); topGrad.addColorStop(0, 'rgba(20,20,24,0.6)'); topGrad.addColorStop(1, 'rgba(20,20,24,0)');
-                ctx.fillStyle = topGrad; ctx.fillRect(0, 0, canvasWidth, dangerLineY);
+                if (previewFruit && !gameOver && releaseCooldown <= 0) {
+                    const previewAlpha = 0.7 + Math.sin(Date.now() / 400) * 0.15;
+                    drawFruit(ctx, previewFruit, previewAlpha);
+                    const px = previewFruit.x;
+                    const py = previewFruit.y + previewFruit.radius;
+                    ctx.strokeStyle = 'rgba(190,180,210,0.3)';
+                    ctx.lineWidth = 1.2 * dpr;
+                    ctx.setLineDash([5 * dpr, 8 * dpr]);
+                    ctx.beginPath();
+                    ctx.moveTo(px, py);
+                    ctx.lineTo(px, py + 28 * dpr);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+                drawParticles(ctx);
+                ctx.restore();
+                const topGrad = ctx.createLinearGradient(0, 0, 0, dangerLineY);
+                topGrad.addColorStop(0, 'rgba(20,20,24,0.6)');
+                topGrad.addColorStop(1, 'rgba(20,20,24,0)');
+                ctx.fillStyle = topGrad;
+                ctx.fillRect(0, 0, canvasWidth, dangerLineY);
+                const bottomGrad = ctx.createLinearGradient(0, canvasHeight - 30 * dpr, 0, canvasHeight);
+                bottomGrad.addColorStop(0, 'rgba(20,20,24,0)');
+                bottomGrad.addColorStop(1, 'rgba(20,20,24,0.45)');
+                ctx.fillStyle = bottomGrad;
+                ctx.fillRect(0, canvasHeight - 30 * dpr, canvasWidth, 30 * dpr);
             }
 
-            let lastTime = 0; let accumulator = 0; const fixedDt = 1000 / 60;
+            let lastTime = 0;
+            let accumulator = 0;
+            const fixedDt = 1000 / 60;
+
             function gameLoop(timestamp) {
-                if (!lastTime) lastTime = timestamp; let dt = timestamp - lastTime; lastTime = timestamp; if (dt > 100) dt = 100;
-                accumulator += dt; let updates = 0;
+                if (!lastTime) lastTime = timestamp;
+                let dt = timestamp - lastTime;
+                lastTime = timestamp;
+                if (dt > 100) dt = 100;
+                accumulator += dt;
+                let updates = 0;
                 while (accumulator >= fixedDt && updates < 5) {
-                    if (!gameOver) { updatePhysics(); tryMergeFruits(); checkGameOver(); if (releaseCooldown > 0) releaseCooldown--; }
-                    updateParticles(); updateShake(); accumulator -= fixedDt; updates++;
+                    if (!gameOver) {
+                        updatePhysics();
+                        tryMergeFruits();
+                        checkGameOver();
+                        if (releaseCooldown > 0) releaseCooldown--;
+                    }
+                    updateParticles();
+                    updateShake();
+                    accumulator -= fixedDt;
+                    updates++;
                 }
-                if (!hasFirstDrop && !gameOver) { hintOpacity = 0.6 + Math.sin(timestamp / 1800) * 0.3; hintTextOuter.style.opacity = hintOpacity; }
-                else if (hasFirstDrop && hintOpacity > 0) { hintOpacity = Math.max(0, hintOpacity - 0.015); hintTextOuter.style.opacity = hintOpacity; }
-                render(); requestAnimationFrame(gameLoop);
+                if (updates === 0 && accumulator > 0) {
+                    if (!gameOver) {
+                        updatePhysics();
+                        tryMergeFruits();
+                        checkGameOver();
+                        if (releaseCooldown > 0) releaseCooldown--;
+                    }
+                    updateParticles();
+                    updateShake();
+                    accumulator = 0;
+                }
+                if (!hasFirstDrop && !gameOver) {
+                    hintOpacity = 0.6 + Math.sin(timestamp / 1800) * 0.3;
+                    hintTextOuter.style.opacity = hintOpacity;
+                } else if (hasFirstDrop && hintOpacity > 0) {
+                    hintOpacity = Math.max(0, hintOpacity - 0.015);
+                    hintTextOuter.style.opacity = hintOpacity;
+                }
+                updateScoreDisplay();
+                render();
+                requestAnimationFrame(gameLoop);
             }
 
             function getEventPos(e) {
-                const rect = canvas.getBoundingClientRect(); const scaleX = canvasWidth / rect.width; const scaleY = canvasHeight / rect.height;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvasWidth / rect.width;
+                const scaleY = canvasHeight / rect.height;
                 let clientX, clientY;
                 if (e.touches) {
-                    if (e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
-                    else if (e.changedTouches && e.changedTouches.length > 0) { clientX = e.changedTouches[0].clientX; clientY = e.changedTouches[0].clientY; }
-                    else { return null; }
-                } else { clientX = e.clientX; clientY = e.clientY; }
-                return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+                    if (e.touches.length > 0) {
+                        clientX = e.touches[0].clientX;
+                        clientY = e.touches[0].clientY;
+                    } else if (e.changedTouches && e.changedTouches.length > 0) {
+                        clientX = e.changedTouches[0].clientX;
+                        clientY = e.changedTouches[0].clientY;
+                    } else {
+                        return null;
+                    }
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+                return {
+                    x: (clientX - rect.left) * scaleX,
+                    y: (clientY - rect.top) * scaleY,
+                };
             }
 
-            function updatePreviewPosition(pos) { if (!previewFruit || gameOver || isCelebrating) return; const r = previewFruit.radius; previewFruit.x = Math.max(r, Math.min(canvasWidth - r, pos.x)); }
-            function handlePointerDown(e) { if (gameOver || isCelebrating) return; e.preventDefault(); const pos = getEventPos(e); if (pos) { updatePreviewPosition(pos); releaseFruit(); } }
-            function handlePointerMove(e) { if (gameOver || isCelebrating) return; e.preventDefault(); const pos = getEventPos(e); if (pos) updatePreviewPosition(pos); }
-            function handlePointerUp(e) { if (gameOver || isCelebrating) return; e.preventDefault(); if (e.changedTouches && e.changedTouches.length > 0) releaseFruit(); }
+            function updatePreviewPosition(pos) {
+                if (!previewFruit || gameOver) return;
+                const r = previewFruit.radius;
+                previewFruit.x = Math.max(r, Math.min(canvasWidth - r, pos.x));
+            }
 
-            celebrateOverlay.addEventListener('click', (e) => { e.stopPropagation(); hideCelebration(); });
-            celebrateOverlay.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); hideCelebration(); }, { passive: false });
+            function handlePointerDown(e) {
+                if (gameOver) return;
+                e.preventDefault();
+                const pos = getEventPos(e);
+                if (pos) {
+                    updatePreviewPosition(pos);
+                    releaseFruit();
+                }
+            }
 
-            restartBtn.addEventListener('click', (e) => { e.stopPropagation(); if(canRestart) initGame(); });
-            restartBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); if(canRestart) initGame(); });
-            gameOverOverlay.addEventListener('click', (e) => { if (e.target === gameOverOverlay && canRestart) initGame(); });
+            function handlePointerMove(e) {
+                if (gameOver) return;
+                e.preventDefault();
+                const pos = getEventPos(e);
+                if (pos) updatePreviewPosition(pos);
+            }
+
+            function handlePointerUp(e) {
+                if (gameOver) return;
+                e.preventDefault();
+                if (e.changedTouches && e.changedTouches.length > 0) releaseFruit();
+            }
 
             canvas.addEventListener('mousedown', handlePointerDown);
             canvas.addEventListener('mousemove', handlePointerMove);
-            canvas.addEventListener('click', (e) => { if (gameOver || isCelebrating) return; if (!('ontouchstart' in window)) releaseFruit(); });
+            canvas.addEventListener('click', (e) => {
+                if (gameOver) return;
+                if (!('ontouchstart' in window)) releaseFruit();
+            });
             canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
             canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
             canvas.addEventListener('touchend', handlePointerUp, { passive: false });
+            canvas.addEventListener('touchcancel', () => {});
+            document.addEventListener('touchmove', function(e) {
+                if (e.target === canvas || canvas.contains(e.target)) e.preventDefault();
+            }, { passive: false });
+
             window.addEventListener('resize', () => {
                 resizeCanvas();
-                for (const fruit of fruits) { if (fruit.exists) { fruit.radius = FRUIT_DATA[fruit.level].radius * dpr; fruit.x = Math.max(fruit.radius, Math.min(canvasWidth - fruit.radius, fruit.x)); fruit.y = Math.min(groundY - fruit.radius, fruit.y); } }
+                if (previewFruit && previewFruit.level !== undefined) {
+                    const r = FRUIT_DATA[previewFruit.level].radius * dpr;
+                    previewFruit.radius = r;
+                    previewFruit.y = Math.floor(dangerLineY * 0.55);
+                    previewFruit.x = Math.max(r, Math.min(canvasWidth - r, previewFruit.x));
+                }
+                for (const fruit of fruits) {
+                    if (fruit.exists) {
+                        fruit.radius = FRUIT_DATA[fruit.level].radius * dpr;
+                        fruit.x = Math.max(fruit.radius, Math.min(canvasWidth - fruit.radius, fruit.x));
+                        fruit.y = Math.min(groundY - fruit.radius, fruit.y);
+                    }
+                }
             });
-            
-            function startGame() { preloadAllImages(); highScore = getHighScore(); updateHighScoreDisplay(); resizeCanvas(); initGame(); lastTime = performance.now(); requestAnimationFrame(gameLoop); }
-            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startGame); else startGame();
+
+            restartBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                initGame();
+            });
+            restartBtn.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                initGame();
+            });
+            gameOverOverlay.addEventListener('click', (e) => {
+                if (e.target === gameOverOverlay) initGame();
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (gameOver) return;
+                if (e.key === ' ' || e.code === 'Space') {
+                    e.preventDefault();
+                    releaseFruit();
+                }
+                if (e.key === 'ArrowLeft' && previewFruit) previewFruit.x = Math.max(previewFruit.radius, previewFruit.x -
+                    15 * dpr);
+                if (e.key === 'ArrowRight' && previewFruit) previewFruit.x = Math.min(canvasWidth - previewFruit.radius,
+                    previewFruit.x + 15 * dpr);
+                if (e.key === 'r' || e.key === 'R') initGame();
+            });
+
+            function startGame() {
+                preloadAllImages();
+                highScore = getHighScore();
+                updateHighScoreDisplay();
+                resizeCanvas();
+                initGame();
+                updateNextPreview();
+                updateScoreDisplay();
+                lastTime = performance.now();
+                accumulator = 0;
+                requestAnimationFrame(gameLoop);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', startGame);
+            } else {
+                startGame();
+            }
+
+            console.log('🍉 合成大月巴 v7 — 边缘无交错刚体碰撞 · 精确触线判定');
         })();
     </script>
 </body>
