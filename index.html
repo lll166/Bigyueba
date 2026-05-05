@@ -450,7 +450,7 @@
             let particles = [];
             let score = 0;
             let gameOver = false;
-            let canRestart = false; // 用于解决游戏突然重开的变量
+            let canRestart = false; 
             
             let isCelebrating = false;
             let celebrationInterval = null;
@@ -532,13 +532,11 @@
                 resizeCanvas();
             }
 
-            // --- 庆祝逻辑控制 ---
             function showCelebration() {
                 if (isCelebrating) return;
                 isCelebrating = true;
                 celebrateOverlay.classList.add('active');
                 
-                // 持续释放庆祝粒子
                 celebrationInterval = setInterval(() => {
                     if (!isCelebrating) {
                         clearInterval(celebrationInterval);
@@ -556,7 +554,6 @@
                 celebrateOverlay.classList.remove('active');
                 if (celebrationInterval) clearInterval(celebrationInterval);
             }
-            // --------------------
 
             function randomFruitLevel() {
                 const weights = [28, 25, 20, 14, 9, 3, 1, 0, 0, 0];
@@ -593,7 +590,7 @@
                 if (releaseCooldown > 0) return;
                 if (!previewFruit) return;
                 
-                playDropSound(); // 投放触发音效
+                playDropSound(); 
 
                 const level = previewFruit.level;
                 const data = FRUIT_DATA[level];
@@ -770,11 +767,11 @@
                                 spawnParticles(clampedX, clampedY, 120, '#e8d890', '#ffffff', 4);
                                 triggerShake(30);
                                 score += 4000;
-                                showCelebration(); // 触发庆祝特效弹窗
+                                showCelebration(); 
                             }
                             merged = true;
                             
-                            playDropSound(); // 合并触发音效
+                            playDropSound(); 
                             break;
                         }
                     }
@@ -784,7 +781,6 @@
                 if (!merged && iterations === 0) mergeChainCount = Math.max(0, mergeChainCount - 1);
             }
 
-            // 解析碰撞：修改回 100% 拒绝交错（无松弛），通过将相对极低速的回弹系数置0防抖
             function resolveFruitCollisions(fruitsArray, applyVelocity) {
                 const collisionMargin = 0; 
                 for (let i = 0; i < fruitsArray.length; i++) {
@@ -804,7 +800,6 @@
                             const m1 = f1.radius * f1.radius; const m2 = f2.radius * f2.radius;
                             const totalMass = m1 + m2;
                             
-                            // 修改：使用 100% 的重叠力修正，肉眼绝对看不出交错
                             const correction = overlap;
                             
                             const sep1 = correction * (m2 / totalMass);
@@ -816,7 +811,6 @@
                                 const dvx = f1.vx - f2.vx; const dvy = f1.vy - f2.vy;
                                 const relVel = dvx * nx + dvy * ny;
                                 if (relVel > 0) {
-                                    // 仅当低速碰撞时，不赋予反弹力（防抖动），否则正常反弹
                                     const actualRestitution = relVel < 1.0 ? 0 : FRUIT_FRUIT_RESTITUTION;
                                     const impulse = relVel * (1 + actualRestitution) / totalMass;
                                     f1.vx -= impulse * m2 * nx; f1.vy -= impulse * m2 * ny;
@@ -873,7 +867,7 @@
             }
 
             function checkGameOver() {
-                if (gameOver || isCelebrating) return; // 庆祝期间暂停倒计时
+                if (gameOver || isCelebrating) return; 
                 if (!hasFirstDrop) return;
                 if (releaseCooldown > 0) return;
                 
@@ -910,7 +904,6 @@
                 hintTextOuter.style.opacity = '0';
                 triggerShake(6);
                 
-                // 解决突然重开的Bug：加入 800ms 的点击保护冷却时间
                 canRestart = false;
                 setTimeout(() => { canRestart = true; }, 800);
                 
@@ -1006,11 +999,9 @@
             function handlePointerMove(e) { if (gameOver || isCelebrating) return; e.preventDefault(); const pos = getEventPos(e); if (pos) updatePreviewPosition(pos); }
             function handlePointerUp(e) { if (gameOver || isCelebrating) return; e.preventDefault(); if (e.changedTouches && e.changedTouches.length > 0) releaseFruit(); }
 
-            // 监听庆祝遮罩的点击与隐藏
             celebrateOverlay.addEventListener('click', (e) => { e.stopPropagation(); hideCelebration(); });
             celebrateOverlay.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); hideCelebration(); }, { passive: false });
 
-            // 修复由于冷却导致的无法点击按钮的问题
             restartBtn.addEventListener('click', (e) => { e.stopPropagation(); if(canRestart) initGame(); });
             restartBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); if(canRestart) initGame(); });
             gameOverOverlay.addEventListener('click', (e) => { if (e.target === gameOverOverlay && canRestart) initGame(); });
