@@ -236,7 +236,6 @@
             animation: newRecordGlow 0.8s ease-in-out infinite alternate;
         }
 
-        /* 庆祝特效遮罩层 CSS */
         .celebrate-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -367,7 +366,7 @@
             </div>
         </div>
 
-        <div class="hint-text-outer" id="hintTextOuter">点击或触摸释放月巴 | 三个相同月巴碰到一起即可合成</div>
+        <div class="hint-text-outer" id="hintTextOuter">点击或触摸释放月巴 | 两个相同月巴碰到一起即可合成</div>
     </div>
 
     <script>
@@ -388,11 +387,12 @@
             const hintTextOuter = document.getElementById('hintTextOuter');
 
             // ==========================================
-            // 音效配置
+            // 音效配置优化 (尽最大可能全自动解锁)
             // ==========================================
             const AUDIO_URL = 'https://videotourl.com/audio/1778018991962-05128d2b-0a13-4ef8-a993-c7ac5d139a17.mp3'; 
             const dropSound = new Audio(AUDIO_URL);
             dropSound.crossOrigin = 'anonymous'; 
+            dropSound.autoplay = true; // 尝试自动播放
 
             function playDropSound() {
                 const soundClone = dropSound.cloneNode();
@@ -401,14 +401,17 @@
             }
 
             function unlockAudio() {
-                dropSound.play().then(() => { dropSound.pause(); dropSound.currentTime = 0; }).catch(() => {});
-                document.removeEventListener('touchstart', unlockAudio);
-                document.removeEventListener('mousedown', unlockAudio);
-                document.removeEventListener('keydown', unlockAudio);
+                dropSound.play().then(() => { 
+                    dropSound.pause(); 
+                    dropSound.currentTime = 0; 
+                }).catch(() => {});
+                // 移除所有监听器，避免性能损耗
+                const events = ['touchstart', 'mousedown', 'keydown', 'mousemove', 'wheel', 'scroll'];
+                events.forEach(evt => document.removeEventListener(evt, unlockAudio));
             }
-            document.addEventListener('touchstart', unlockAudio, { once: true });
-            document.addEventListener('mousedown', unlockAudio, { once: true });
-            document.addEventListener('keydown', unlockAudio, { once: true });
+            // 绑定全方位事件以确保音频一有机会就自动激活
+            const events = ['touchstart', 'mousedown', 'keydown', 'mousemove', 'wheel', 'scroll'];
+            events.forEach(evt => document.addEventListener(evt, unlockAudio, { once: true }));
 
             const FRUIT_DATA = [
                 { name: '月巴1', radius: 17, color: '#c44b4b', glow: '#e88080', score: 1, imageUrl: 'https://img.heliar.top/file/1777999332387_1.jpg' },
@@ -440,7 +443,7 @@
                 for (const data of FRUIT_DATA) { if (data.imageUrl) loadImage(data.imageUrl); }
             }
 
-            const STORAGE_KEY = 'mergeYueBaHighScore_v8';
+            const STORAGE_KEY = 'mergeYueBaHighScore_v9';
             function getHighScore() { try { const val = localStorage.getItem(STORAGE_KEY); return val ? parseInt(val) : 0; } catch (e) { return 0; } }
             function setHighScore(val) { try { localStorage.setItem(STORAGE_KEY, val.toString()); } catch (e) {} }
 
@@ -624,7 +627,7 @@
                     name: data.name,
                     imageUrl: data.imageUrl,
                     mergeCooldown: 0,
-                    age: 0, // 新增：存活寿命，用于过滤掉刚扔下还没落地的月巴
+                    age: 0, 
                     exists: true,
                 };
                 fruit.x = Math.max(fruit.radius, Math.min(canvasWidth - fruit.radius, fruit.x));
@@ -641,8 +644,9 @@
                 nextPreviewWrap.title = data.name;
             }
 
+            // 物理优化：降低最大粒子数量限制
             function spawnParticles(x, y, count, color, glowColor, intensity = 1) {
-                const actualCount = Math.min(Math.floor(count), 200 - particles.length);
+                const actualCount = Math.min(Math.floor(count), 100 - particles.length);
                 for (let i = 0; i < actualCount; i++) {
                     const angle = Math.random() * Math.PI * 2;
                     const speed = (2 + Math.random() * 7) * intensity;
@@ -657,7 +661,7 @@
                         gravity: 0.06 + Math.random() * 0.08,
                     });
                 }
-                while (particles.length > 200) particles.shift();
+                while (particles.length > 100) particles.shift();
             }
 
             function updateParticles() {
@@ -700,10 +704,11 @@
                 }
             }
 
+            // 修改为二合一，并优化物理循环与计算量
             function tryMergeFruits() {
                 let merged = false;
                 let iterations = 0;
-                const maxIterations = 10;
+                const maxIterations = 5; // 优化：由10减少到5，降低突发计算压力
                 do {
                     merged = false;
                     const byLevel = {};
@@ -717,69 +722,66 @@
                     for (const levelKey in byLevel) {
                         const level = parseInt(levelKey);
                         const sameLevelFruits = byLevel[levelKey];
-                        if (sameLevelFruits.length < 3) continue;
+                        // 寻找二合一
+                        if (sameLevelFruits.length < 2) continue; 
+                        
                         const r = sameLevelFruits[0].radius;
-                        const contactThreshold = r * 2.8; 
-                        let foundTrio = null;
+                        const contactThreshold = r * 2.05; // 留出极小公差，允许轻微接触即可合并
+                        let foundPair = null;
                         const n = sameLevelFruits.length;
-                        for (let i = 0; i < n && !foundTrio; i++) {
+                        
+                        for (let i = 0; i < n && !foundPair; i++) {
                             const fi = sameLevelFruits[i];
-                            for (let j = i + 1; j < n && !foundTrio; j++) {
+                            for (let j = i + 1; j < n && !foundPair; j++) {
                                 const fj = sameLevelFruits[j];
                                 const dij = Math.hypot(fi.x - fj.x, fi.y - fj.y);
-                                
-                                for (let k = j + 1; k < n && !foundTrio; k++) {
-                                    const fk = sameLevelFruits[k];
-                                    const dik = Math.hypot(fi.x - fk.x, fi.y - fk.y);
-                                    const djk = Math.hypot(fj.x - fk.x, fj.y - fk.y);
-                                    const contacts = (dij < contactThreshold ? 1 : 0) +
-                                                   (dik < contactThreshold ? 1 : 0) +
-                                                   (djk < contactThreshold ? 1 : 0);
-                                    if (contacts >= 2) {
-                                        const cx = (fi.x + fj.x + fk.x) / 3;
-                                        const cy = (fi.y + fj.y + fk.y) / 3;
-                                        foundTrio = { f1: fi, f2: fj, f3: fk, cx, cy };
-                                        break;
-                                    }
+                                if (dij < contactThreshold) {
+                                    const cx = (fi.x + fj.x) / 2;
+                                    const cy = (fi.y + fj.y) / 2;
+                                    foundPair = { f1: fi, f2: fj, cx, cy };
+                                    break;
                                 }
                             }
                         }
-                        if (foundTrio) {
-                            const { f1, f2, f3, cx, cy } = foundTrio;
+                        
+                        if (foundPair) {
+                            const { f1, f2, cx, cy } = foundPair;
                             const newLevel = level + 1;
                             const newData = FRUIT_DATA[newLevel];
                             const newRadius = newData.radius * dpr;
-                            const cvx = (f1.vx + f2.vx + f3.vx) / 3;
-                            const cvy = (f1.vy + f2.vy + f3.vy) / 3;
+                            const cvx = (f1.vx + f2.vx) / 2;
+                            const cvy = (f1.vy + f2.vy) / 2;
                             const clampedX = Math.max(newRadius, Math.min(canvasWidth - newRadius, cx));
                             const clampedY = Math.min(groundY - newRadius, Math.max(newRadius, cy));
                             const newFruit = {
                                 id: fruitIdCounter++,
                                 level: newLevel, x: clampedX, y: clampedY,
-                                vx: cvx + (Math.random() - 0.5) * 1.5,
-                                vy: cvy - 3.0,
+                                vx: cvx + (Math.random() - 0.5) * 1.0,
+                                vy: cvy - 2.0,
                                 radius: newRadius,
                                 color: newData.color, glow: newData.glow,
                                 name: newData.name, imageUrl: newData.imageUrl,
                                 mergeCooldown: 8, 
-                                age: 0, // 新增：合并出来的月巴年龄也是 0 
+                                age: 0,
                                 exists: true,
                             };
-                            f1.exists = false; f2.exists = false; f3.exists = false;
+                            f1.exists = false; f2.exists = false;
                             fruits.push(newFruit);
                             mergeChainCount++;
-                            const particleIntensity = 1 + mergeChainCount * 0.5;
-                            const particleCount = 28 + newLevel * 14 + mergeChainCount * 12;
-                            spawnParticles(clampedX, clampedY, particleCount, newData.color, newData.glow, particleIntensity);
-                            triggerShake(4 + newLevel * 2.5 + mergeChainCount * 0.9);
                             
-                            const baseMergeScore = FRUIT_DATA[level].score * 3;
-                            score += Math.floor(baseMergeScore * (1 + mergeChainCount * 0.65));
+                            // 物理优化：减少生成的粒子数量和震屏强度
+                            const particleIntensity = 1 + mergeChainCount * 0.3;
+                            const particleCount = 15 + newLevel * 5 + mergeChainCount * 5;
+                            spawnParticles(clampedX, clampedY, particleCount, newData.color, newData.glow, particleIntensity);
+                            triggerShake(2 + newLevel * 1.5 + mergeChainCount * 0.5);
+                            
+                            const baseMergeScore = FRUIT_DATA[level].score * 2;
+                            score += Math.floor(baseMergeScore * (1 + mergeChainCount * 0.5));
                             triggerScorePulse(); 
                             
                             if (newLevel >= MAX_LEVEL) {
-                                spawnParticles(clampedX, clampedY, 120, '#e8d890', '#ffffff', 4);
-                                triggerShake(30);
+                                spawnParticles(clampedX, clampedY, 60, '#e8d890', '#ffffff', 3);
+                                triggerShake(15);
                                 score += 4000;
                                 triggerScorePulse(); 
                                 showCelebration(); 
@@ -844,7 +846,7 @@
             function updatePhysics() {
                 for (const fruit of fruits) {
                     if (!fruit.exists) continue;
-                    fruit.age++; // 每帧增加存活年龄
+                    fruit.age++; 
                     fruit.vy += GRAVITY; fruit.x += fruit.vx; fruit.y += fruit.vy;
                     fruit.vx *= 0.995; fruit.vy *= 0.995;
                     
@@ -865,7 +867,8 @@
                 
                 resolveFruitCollisions(fruits, true);
                 
-                for (let iter = 0; iter < 8; iter++) {
+                // 物理优化：碰撞位置计算迭代从 8 次砍到 3 次，大幅减少网页端运算
+                for (let iter = 0; iter < 3; iter++) {
                     resolveFruitCollisions(fruits, false);
                     for (const fruit of fruits) {
                         if (!fruit.exists) continue;
@@ -886,11 +889,9 @@
                 if (gameOver || isCelebrating) return; 
                 if (!hasFirstDrop) return;
                 
-                // --- 核心修复：移除 releaseCooldown 阻塞，引入年龄(age)过滤 ---
                 let isAnyAboveLine = false;
                 for (const fruit of fruits) {
                     if (!fruit.exists) continue;
-                    // 只有存活超过 45 帧 (0.75秒，即已经越过半空安全落到底部堆叠) 的月巴，才纳入警戒线检测
                     if (fruit.age > 45 && fruit.y - fruit.radius <= dangerLineY) {
                         isAnyAboveLine = true;
                         break;
@@ -903,7 +904,6 @@
                         endGame('这里有太多的月巴！');
                     }
                 } else {
-                    // --- 核心修复：不瞬间归零，而是平滑快速衰减，防止物理轻微抖动越线导致倒计时被恶意清空 ---
                     if (dangerTimer > 0) {
                         dangerTimer = Math.max(0, dangerTimer - 2); 
                     }
@@ -1047,7 +1047,17 @@
                 for (const fruit of fruits) { if (fruit.exists) { fruit.radius = FRUIT_DATA[fruit.level].radius * dpr; fruit.x = Math.max(fruit.radius, Math.min(canvasWidth - fruit.radius, fruit.x)); fruit.y = Math.min(groundY - fruit.radius, fruit.y); } }
             });
             
-            function startGame() { preloadAllImages(); highScore = getHighScore(); updateHighScoreDisplay(); resizeCanvas(); initGame(); lastTime = performance.now(); requestAnimationFrame(gameLoop); }
+            function startGame() { 
+                dropSound.play().catch(e => {}); // 初始化即发请求尝试自动播放
+                preloadAllImages(); 
+                highScore = getHighScore(); 
+                updateHighScoreDisplay(); 
+                resizeCanvas(); 
+                initGame(); 
+                lastTime = performance.now(); 
+                requestAnimationFrame(gameLoop); 
+            }
+            
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startGame); else startGame();
         })();
     </script>
