@@ -392,7 +392,7 @@
             const AUDIO_URL = 'https://videotourl.com/audio/1778018991962-05128d2b-0a13-4ef8-a993-c7ac5d139a17.mp3'; 
             const dropSound = new Audio(AUDIO_URL);
             dropSound.crossOrigin = 'anonymous'; 
-            dropSound.autoplay = true; // 尝试自动播放
+            dropSound.autoplay = true; 
 
             function playDropSound() {
                 const soundClone = dropSound.cloneNode();
@@ -405,11 +405,9 @@
                     dropSound.pause(); 
                     dropSound.currentTime = 0; 
                 }).catch(() => {});
-                // 移除所有监听器，避免性能损耗
                 const events = ['touchstart', 'mousedown', 'keydown', 'mousemove', 'wheel', 'scroll'];
                 events.forEach(evt => document.removeEventListener(evt, unlockAudio));
             }
-            // 绑定全方位事件以确保音频一有机会就自动激活
             const events = ['touchstart', 'mousedown', 'keydown', 'mousemove', 'wheel', 'scroll'];
             events.forEach(evt => document.addEventListener(evt, unlockAudio, { once: true }));
 
@@ -443,7 +441,7 @@
                 for (const data of FRUIT_DATA) { if (data.imageUrl) loadImage(data.imageUrl); }
             }
 
-            const STORAGE_KEY = 'mergeYueBaHighScore_v9';
+            const STORAGE_KEY = 'mergeYueBaHighScore_v10';
             function getHighScore() { try { const val = localStorage.getItem(STORAGE_KEY); return val ? parseInt(val) : 0; } catch (e) { return 0; } }
             function setHighScore(val) { try { localStorage.setItem(STORAGE_KEY, val.toString()); } catch (e) {} }
 
@@ -481,7 +479,6 @@
             let dangerLineY = 120;
 
             const GRAVITY = 0.28;
-            const RESTITUTION = 0.5;
             const WALL_RESTITUTION = 0.4;
             const GROUND_RESTITUTION = 0.3;
             const FRICTION = 0.78;
@@ -644,7 +641,6 @@
                 nextPreviewWrap.title = data.name;
             }
 
-            // 物理优化：降低最大粒子数量限制
             function spawnParticles(x, y, count, color, glowColor, intensity = 1) {
                 const actualCount = Math.min(Math.floor(count), 100 - particles.length);
                 for (let i = 0; i < actualCount; i++) {
@@ -704,11 +700,10 @@
                 }
             }
 
-            // 修改为二合一，并优化物理循环与计算量
             function tryMergeFruits() {
                 let merged = false;
                 let iterations = 0;
-                const maxIterations = 5; // 优化：由10减少到5，降低突发计算压力
+                const maxIterations = 5; 
                 do {
                     merged = false;
                     const byLevel = {};
@@ -722,11 +717,10 @@
                     for (const levelKey in byLevel) {
                         const level = parseInt(levelKey);
                         const sameLevelFruits = byLevel[levelKey];
-                        // 寻找二合一
                         if (sameLevelFruits.length < 2) continue; 
                         
                         const r = sameLevelFruits[0].radius;
-                        const contactThreshold = r * 2.05; // 留出极小公差，允许轻微接触即可合并
+                        const contactThreshold = r * 2.05; 
                         let foundPair = null;
                         const n = sameLevelFruits.length;
                         
@@ -769,7 +763,6 @@
                             fruits.push(newFruit);
                             mergeChainCount++;
                             
-                            // 物理优化：减少生成的粒子数量和震屏强度
                             const particleIntensity = 1 + mergeChainCount * 0.3;
                             const particleCount = 15 + newLevel * 5 + mergeChainCount * 5;
                             spawnParticles(clampedX, clampedY, particleCount, newData.color, newData.glow, particleIntensity);
@@ -798,6 +791,7 @@
                 if (!merged && iterations === 0) mergeChainCount = Math.max(0, mergeChainCount - 1);
             }
 
+            // 修改物理计算实现“不可交错，不可堆叠”
             function resolveFruitCollisions(fruitsArray, applyVelocity) {
                 const collisionMargin = 0; 
                 for (let i = 0; i < fruitsArray.length; i++) {
@@ -806,21 +800,30 @@
                         if (!fruitsArray[j].exists) continue;
                         const f1 = fruitsArray[i];
                         const f2 = fruitsArray[j];
-                        const dx = f2.x - f1.x;
-                        const dy = f2.y - f1.y;
-                        const dist = Math.hypot(dx, dy);
+                        let dx = f2.x - f1.x;
+                        let dy = f2.y - f1.y;
+                        let dist = Math.hypot(dx, dy);
                         const minDist = f1.radius + f2.radius + collisionMargin;
                         
                         if (dist < minDist && dist > 0.0001) {
+                            
+                            // 【不可堆叠】：如果两者几乎完美垂直堆叠，施加细微的随机横向推力，强行让其滑落
+                            if (Math.abs(dx) < 1.5) {
+                                const nudge = (Math.random() > 0.5 ? 1 : -1) * 1.2;
+                                f1.x -= nudge; f2.x += nudge;
+                                // 重新计算偏差
+                                dx = f2.x - f1.x; dy = f2.y - f1.y;
+                                dist = Math.hypot(dx, dy);
+                            }
+
                             const overlap = minDist - dist;
                             const nx = dx / dist; const ny = dy / dist;
                             const m1 = f1.radius * f1.radius; const m2 = f2.radius * f2.radius;
                             const totalMass = m1 + m2;
                             
-                            const correction = overlap;
-                            
-                            const sep1 = correction * (m2 / totalMass);
-                            const sep2 = correction * (m1 / totalMass);
+                            // 【不可交错】：绝对且彻底地进行位置修正重排，拒绝软体式的互相穿透
+                            const sep1 = overlap * (m2 / totalMass);
+                            const sep2 = overlap * (m1 / totalMass);
                             f1.x -= nx * sep1; f1.y -= ny * sep1;
                             f2.x += nx * sep2; f2.y += ny * sep2;
                             
@@ -867,8 +870,8 @@
                 
                 resolveFruitCollisions(fruits, true);
                 
-                // 物理优化：碰撞位置计算迭代从 8 次砍到 3 次，大幅减少网页端运算
-                for (let iter = 0; iter < 3; iter++) {
+                // 进行 4 次严格的位置反交错修正
+                for (let iter = 0; iter < 4; iter++) {
                     resolveFruitCollisions(fruits, false);
                     for (const fruit of fruits) {
                         if (!fruit.exists) continue;
@@ -1048,7 +1051,7 @@
             });
             
             function startGame() { 
-                dropSound.play().catch(e => {}); // 初始化即发请求尝试自动播放
+                dropSound.play().catch(e => {}); 
                 preloadAllImages(); 
                 highScore = getHighScore(); 
                 updateHighScoreDisplay(); 
