@@ -2,1066 +2,2089 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>合成大月巴</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章排版工具 - 印刷版式设计</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&family=Dancing+Script:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --white: #f0f0f0;
-            --dark-gray: #2a2a2a;
-            --mid-gray: #3a3a3e;
-            --light-gray: #b0b0b4;
-            --light-purple: #c4b5e0;
-            --gray-purple: #9d94ab;
-            --border-subtle: rgba(180, 175, 190, 0.28);
-            --surface-dark: rgba(30, 30, 34, 0.88);
+            --sidebar-width: 420px;
+            --bg-app: #e6e3db;
+            --bg-sidebar: #f5f3ee;
+            --text-sidebar: #3d3226;
+            --sidebar-header-bg: linear-gradient(135deg, #4a3020 0%, #6b4832 50%, #7a5230 100%);
+            --sidebar-header-text: #fff;
+            --accent: #7a5230;
+            --accent-hover: #966b43;
+            --border: #d4cfc6;
+            --shadow: 0 2px 18px rgba(0, 0, 0, 0.09);
+            --shadow-strong: 0 4px 24px rgba(0, 0, 0, 0.18);
+            --toast-bg: #333;
+            --spread-gap: 40px;
+            --preview-dot: #c5bfb4;
+            --section-title-color: #8b7355;
+        }
+
+        /* ===== 主题：灰白色 ===== */
+        body.theme-grayish {
+            --bg-app: #e8e6e1;
+            --bg-sidebar: #f7f6f2;
+            --text-sidebar: #4a4036;
+            --sidebar-header-bg: linear-gradient(135deg, #5a5a5a 0%, #7a7a7a 50%, #8a8a8a 100%);
+            --sidebar-header-text: #fff;
+            --accent: #8a7a6a;
+            --accent-hover: #9a8a7a;
+            --border: #d8d4ce;
+            --shadow: 0 2px 18px rgba(0, 0, 0, 0.06);
+            --shadow-strong: 0 4px 24px rgba(0, 0, 0, 0.12);
+            --toast-bg: #555;
+            --preview-dot: #c8c4bc;
+            --section-title-color: #9a8a7a;
+        }
+
+        /* ===== 主题：浅绿护眼 ===== */
+        body.theme-green {
+            --bg-app: #c8e6c9;
+            --bg-sidebar: #e8f5e9;
+            --text-sidebar: #2e5a3a;
+            --sidebar-header-bg: linear-gradient(135deg, #2e7d32 0%, #43a047 50%, #66bb6a 100%);
+            --sidebar-header-text: #fff;
+            --accent: #2e7d32;
+            --accent-hover: #388e3c;
+            --border: #a5d6a7;
+            --shadow: 0 2px 18px rgba(46, 125, 50, 0.10);
+            --shadow-strong: 0 4px 24px rgba(46, 125, 50, 0.15);
+            --toast-bg: #2e7d32;
+            --preview-dot: #a8d8aa;
+            --section-title-color: #388e3c;
+        }
+
+        /* ===== 主题：深色夜间模式 ===== */
+        body.theme-dark {
+            --bg-app: #1a1a2e;
+            --bg-sidebar: #16213e;
+            --text-sidebar: #c8d0e0;
+            --sidebar-header-bg: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2a2a5e 100%);
+            --sidebar-header-text: #e0e8ff;
+            --accent: #5a7ab8;
+            --accent-hover: #6a8ac8;
+            --border: #2a3a5e;
+            --shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
+            --shadow-strong: 0 4px 24px rgba(0, 0, 0, 0.5);
+            --toast-bg: #2a3a5e;
+            --preview-dot: #2a3a4e;
+            --section-title-color: #7a9ac8;
+            --bg-app-pattern: #1a1a2e;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
         }
-
         body {
-            background: #1e1e22;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            min-height: 100dvh;
-            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
-            overflow: hidden;
-            touch-action: manipulation;
-            -webkit-overflow-scrolling: none;
-            background-image: url('https://img.heliar.top/file/1777979690688_Snipaste_2026-04-07_12-29-51.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
-
-        .game-wrapper {
-            position: relative;
-            width: 100vw;
-            width: 100dvw;
-            max-width: 440px;
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-app);
             height: 100vh;
-            height: 100dvh;
-            max-height: 820px;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 8px;
-            gap: 6px;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: background 0.3s ease;
         }
 
-        .game-header {
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 420px;
-            padding: 10px 16px;
-            background: rgba(40, 40, 44, 0.82);
-            border-radius: 20px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-subtle);
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
             z-index: 10;
+            box-shadow: var(--shadow);
             flex-shrink: 0;
+            scroll-behavior: smooth;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-
-        .score-display {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--white);
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-        .score-label {
-            font-size: 0.75rem;
-            opacity: 0.75;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--light-gray);
-        }
-        .score-value {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--light-purple);
-            min-width: 55px;
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .sidebar-header {
+            padding: 18px 20px;
+            background: var(--sidebar-header-bg);
+            color: var(--sidebar-header-text);
             text-align: center;
-            transition: transform 0.15s ease;
-            text-shadow: 0 0 18px rgba(196, 181, 224, 0.45);
-        }
-        .score-value.pulse {
-            animation: scorePulse 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes scorePulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.35); color: #fff; text-shadow: 0 0 25px rgba(255, 255, 255, 0.8); }
-            100% { transform: scale(1); }
-        }
-
-        .high-score-display {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--light-purple);
-            font-weight: 600;
-            font-size: 0.78rem;
-        }
-        .high-score-display .hs-label {
-            opacity: 0.65;
-            font-size: 0.68rem;
-            letter-spacing: 0.5px;
-            color: var(--light-gray);
-        }
-        .high-score-display .hs-value {
-            font-size: 0.9rem;
-            font-weight: 800;
-            color: #d4c8ec;
-            min-width: 36px;
-            text-align: center;
-        }
-
-        .next-preview {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--white);
-            font-size: 0.82rem;
-        }
-        .next-preview .label {
-            opacity: 0.7;
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
-            color: var(--light-gray);
-        }
-        .next-icon-wrap {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(180, 170, 195, 0.12);
-            border: 2px solid var(--gray-purple);
-            position: relative;
-            overflow: hidden;
-        }
-        .next-icon-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .canvas-container {
-            position: relative;
-            width: 100%;
-            max-width: 420px;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--border-subtle) inset,
-                0 0 80px rgba(160, 145, 190, 0.18);
-            background: rgba(24, 24, 28, 0.5);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            min-height: 300px;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            border-radius: 18px;
-            cursor: pointer;
-            touch-action: none;
-        }
-
-        .game-over-overlay {
-            position: absolute;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(20, 20, 24, 0.78);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            z-index: 20;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        .game-over-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .game-over-title {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--white);
-            text-shadow: 0 0 40px rgba(220, 180, 240, 0.7);
-            margin-bottom: 8px;
-            letter-spacing: 2px;
-        }
-        .game-over-score {
-            font-size: 1.3rem;
-            color: var(--light-purple);
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .game-over-high-score {
-            font-size: 1rem;
-            color: #d4c8ec;
-            font-weight: 600;
-            margin-bottom: 16px;
-            letter-spacing: 1px;
-        }
-        .game-over-high-score.new-record {
-            animation: newRecordGlow 0.8s ease-in-out infinite alternate;
-        }
-
-        .celebrate-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(20, 20, 24, 0.75);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            z-index: 25;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-            backdrop-filter: blur(2px);
-        }
-        .celebrate-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .celebrate-title {
-            font-size: 2.1rem;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 25px rgba(240, 184, 96, 0.9), 0 0 10px rgba(240, 184, 96, 0.7);
-            text-align: center;
-            margin-bottom: 16px;
-            letter-spacing: 1px;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 0 15px;
-        }
-        .celebrate-subtitle {
-            font-size: 1.05rem;
-            color: #f5eedc;
-            font-weight: bold;
-            text-shadow: 0 0 8px rgba(0,0,0,0.5);
-            animation: pulseText 1.5s infinite alternate;
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes pulseText {
-            0% { opacity: 0.4; transform: scale(0.98); }
-            100% { opacity: 1; transform: scale(1.02); }
-        }
-        @keyframes newRecordGlow {
-            from { text-shadow: 0 0 8px rgba(196, 181, 224, 0.5); }
-            to { text-shadow: 0 0 24px rgba(210, 190, 240, 0.85), 0 0 40px rgba(180, 155, 220, 0.55); }
-        }
-
-        .restart-btn {
-            padding: 14px 40px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 50px;
-            background: linear-gradient(135deg, #b8a5d6, #9d8ac4);
-            color: #fff;
-            cursor: pointer;
-            letter-spacing: 1px;
-            box-shadow: 0 8px 30px rgba(150, 130, 190, 0.45);
-            transition: all 0.3s ease;
-            pointer-events: all;
-        }
-        .restart-btn:active {
-            transform: scale(0.94);
-            box-shadow: 0 4px 15px rgba(150, 130, 190, 0.35);
-        }
-
-        .hint-text-outer {
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            color: rgba(200, 190, 215, 0.65);
-            font-size: 0.72rem;
-            letter-spacing: 1px;
-            pointer-events: none;
             z-index: 5;
-            transition: opacity 0.6s ease;
-            padding: 4px 0 6px;
-            flex-shrink: 0;
-            min-height: 22px;
+            letter-spacing: 2px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .sidebar-header h2 { font-size: 1.15em; font-weight: 600; letter-spacing: 3px; }
+        .sidebar-header small { font-size: 0.68em; opacity: 0.8; letter-spacing: 1px; }
+        .sidebar-section { padding: 13px 16px; border-bottom: 1px solid var(--border); transition: border-color 0.3s ease; }
+        .sidebar-section:last-child { border-bottom: none; }
+        .section-title {
+            font-size: 0.78em; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--section-title-color); margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+            transition: color 0.3s ease;
+        }
+        .section-title::before {
+            content: ''; width: 4px; height: 14px; background: var(--accent);
+            border-radius: 2px; display: inline-block;
+            transition: background 0.3s ease;
+        }
+        label { display: block; font-size: 0.74em; font-weight: 500; color: var(--text-sidebar); margin-bottom: 3px; letter-spacing: 0.5px; transition: color 0.3s ease; }
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
+            border-radius: 7px; font-size: 0.86em; font-family: inherit;
+            background: #fff; color: var(--text-sidebar); transition: var(--transition), border-color 0.3s ease;
+            resize: vertical; outline: none;
+        }
+        body.theme-dark select, body.theme-dark input[type="text"], body.theme-dark input[type="number"], body.theme-dark textarea {
+            background: #1e2a4a;
+            color: #c8d0e0;
+            border-color: #3a4a6e;
+        }
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--accent); box-shadow: 0 0 0 3px rgba(122,82,48,0.07);
+        }
+        body.theme-dark select:focus, body.theme-dark input:focus, body.theme-dark textarea:focus {
+            box-shadow: 0 0 0 3px rgba(90,122,184,0.15);
+        }
+        textarea { min-height: 60px; font-size: 0.82em; line-height: 1.7; }
+        input[type="range"] { width: 100%; accent-color: var(--accent); margin: 3px 0; transition: accent-color 0.3s ease; }
+        .range-row { display: flex; align-items: center; gap: 10px; }
+        .range-row span { font-size: 0.72em; color: var(--section-title-color); min-width: 32px; text-align: center; font-weight: 600; transition: color 0.3s ease; }
+        .color-input-wrap { display: flex; align-items: center; gap: 10px; }
+        input[type="color"] { width: 34px; height: 30px; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; padding: 2px; background: #fff; }
+        body.theme-dark input[type="color"] { background: #1e2a4a; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 8px 14px; border: none; border-radius: 7px; font-size: 0.83em;
+            font-weight: 600; cursor: pointer; letter-spacing: 0.5px;
+            transition: var(--transition), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            font-family: inherit; white-space: nowrap;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(122,82,48,0.3); }
+        .btn-outline { background: #fff; color: var(--accent); border: 1.5px solid var(--accent); }
+        body.theme-dark .btn-outline { background: #1e2a4a; color: #7a9ac8; border-color: #5a7ab8; }
+        .btn-outline:hover { background: #fdf8f3; }
+        .btn-danger { background: #c0392b; color: #fff; }
+        .btn-danger:hover { background: #a93226; }
+        .btn-sm { padding: 5px 9px; font-size: 0.72em; border-radius: 5px; }
+        .btn-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 7px; }
+        .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .style-preset-card {
+            padding: 10px 8px; border: 2px solid var(--border); border-radius: 8px;
+            cursor: pointer; text-align: center; font-size: 0.75em; font-weight: 600;
+            transition: var(--transition), border-color 0.3s ease, background 0.3s ease; background: #fff; position: relative;
+        }
+        body.theme-dark .style-preset-card { background: #1e2a4a; color: #c8d0e0; }
+        .style-preset-card:hover { border-color: var(--accent); background: #fdf8f3; }
+        body.theme-dark .style-preset-card:hover { background: #2a3a5e; }
+        .style-preset-card.active {
+            border-color: var(--accent); background: #fdf3e8;
+            box-shadow: 0 0 0 3px rgba(122,82,48,0.12); color: #4a3020;
+        }
+        body.theme-dark .style-preset-card.active { background: #2a3a5e; color: #e0e8ff; box-shadow: 0 0 0 3px rgba(90,122,184,0.2); }
+        .style-preview-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 3px; vertical-align: middle; }
+
+        /* 主题选择卡片 */
+        .theme-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+        .theme-card {
+            padding: 8px 6px; border: 2px solid var(--border); border-radius: 8px;
+            cursor: pointer; text-align: center; font-size: 0.68em; font-weight: 600;
+            transition: var(--transition), border-color 0.3s ease; background: #fff; 
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        body.theme-dark .theme-card { background: #1e2a4a; color: #c8d0e0; }
+        .theme-card:hover { border-color: var(--accent); }
+        .theme-card.active { border-color: var(--accent); background: #fdf3e8; box-shadow: 0 0 0 3px rgba(122,82,48,0.12); }
+        body.theme-dark .theme-card.active { background: #2a3a5e; box-shadow: 0 0 0 3px rgba(90,122,184,0.2); }
+        .theme-swatch {
+            width: 24px; height: 16px; border-radius: 3px; border: 1px solid var(--border);
+            display: inline-block;
         }
 
-        @media (max-width: 380px) {
-            .game-header { padding: 6px 12px; border-radius: 16px; }
-            .score-value { font-size: 1.25rem; }
-            .next-icon-wrap { width: 34px; height: 34px; }
-            .game-over-title { font-size: 1.7rem; }
-            .celebrate-title { font-size: 1.6rem; }
-            .restart-btn { padding: 10px 30px; font-size: 0.95rem; }
-            .hint-text-outer { font-size: 0.68rem; }
+        .page-thumb-list { display: flex; gap: 7px; flex-wrap: wrap; max-height: 125px; overflow-y: auto; }
+        .page-thumb {
+            width: 50px; height: 70px; border: 2px solid var(--border); border-radius: 4px;
+            cursor: pointer; font-size: 0.6em; display: flex; align-items: center;
+            justify-content: center; background: #fff; transition: var(--transition), border-color 0.3s ease;
+            flex-shrink: 0; text-align: center; line-height: 1.2; position: relative; flex-direction: column;
+        }
+        body.theme-dark .page-thumb { background: #1e2a4a; color: #c8d0e0; }
+        .page-thumb:hover { border-color: var(--accent); }
+        .page-thumb.active { border-color: var(--accent); background: #fdf3e8; font-weight: 700; box-shadow: 0 0 0 2px rgba(122,82,48,0.2); }
+        body.theme-dark .page-thumb.active { background: #2a3a5e; }
+        .page-thumb.auto-page { border-style: dashed; border-color: #e8963a; background: #fffdf7; }
+        body.theme-dark .page-thumb.auto-page { background: #2a3a2e; }
+        .page-thumb .thumb-num { font-weight: 700; font-size: 1.15em; }
+        .hint-text { font-size: 0.66em; color: #999; margin-top: 5px; line-height: 1.4; }
+        body.theme-dark .hint-text { color: #6a7a8a; }
+        .badge-auto { display: inline-block; background: #f0a040; color: #fff; font-size: 0.6em; padding: 2px 7px; border-radius: 9px; font-weight: 600; letter-spacing: 0.5px; vertical-align: middle; margin-left: 4px; }
+
+        /* ==================== 预览区域 ==================== */
+        .preview-area {
+            flex: 1; display: flex; align-items: flex-start; justify-content: center;
+            background: var(--bg-app);
+            background-image: radial-gradient(circle, var(--preview-dot) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: auto; padding: 30px; position: relative;
+            transition: background 0.3s ease;
+        }
+        .preview-area::-webkit-scrollbar { width: 10px; height: 10px; }
+        .preview-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+        .preview-area::-webkit-scrollbar-track { background: transparent; }
+
+        .zoom-control {
+            position: fixed; bottom: 20px; right: 30px; display: flex; align-items: center;
+            gap: 8px; background: #fff; padding: 8px 14px; border-radius: 25px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 20; font-size: 0.85em; font-weight: 600;
+        }
+        body.theme-dark .zoom-control { background: #1e2a4a; color: #c8d0e0; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+        .zoom-control button {
+            width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #ccc;
+            background: #fff; cursor: pointer; font-size: 1em; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; transition: var(--transition);
+        }
+        body.theme-dark .zoom-control button { background: #2a3a5e; border-color: #4a5a7e; color: #c8d0e0; }
+        .zoom-control button:hover { background: #f5f5f5; border-color: #999; }
+        body.theme-dark .zoom-control button:hover { background: #3a4a6e; }
+        .zoom-control span { min-width: 40px; text-align: center; color: #555; }
+        body.theme-dark .zoom-control span { color: #a0b0c0; }
+
+        /* ==================== 页面容器 ==================== */
+        .pages-container {
+            display: flex; flex-direction: column; align-items: center; gap: 48px;
+            transform-origin: top center; transition: transform 0.15s ease;
+            padding-bottom: 40px; min-height: 100%;
+        }
+        .pages-container.single-page-mode { justify-content: center; min-height: 100%; }
+        .spread-row { display: flex; gap: var(--spread-gap); align-items: flex-start; justify-content: center; width: 100%; }
+
+        .page {
+            position: relative; background: #fff;
+            box-shadow: var(--shadow-strong);
+            overflow: hidden; transition: box-shadow 0.2s ease, background 0.3s ease; flex-shrink: 0;
+        }
+        .page.active-page {
+            box-shadow: 0 4px 24px rgba(122,82,48,0.35), 0 1px 8px rgba(122,82,48,0.25), 0 0 0 3px var(--accent);
+        }
+        body.theme-dark .page.active-page {
+            box-shadow: 0 4px 24px rgba(90,122,184,0.35), 0 1px 8px rgba(90,122,184,0.25), 0 0 0 3px #5a7ab8;
+        }
+        .page-content { position: relative; z-index: 1; padding: 48px 52px; height: 100%; display: flex; flex-direction: column; }
+        .page-title {
+            font-weight: 700; margin-bottom: 6px; letter-spacing: 1px; outline: none;
+            min-height: 1.2em; word-break: break-word; cursor: default; position: relative;
+            transition: box-shadow 0.15s ease, border-color 0.15s ease;
+            padding: 4px 6px; border-radius: 3px; border: 2px solid transparent;
+        }
+        .page-title:hover { border: 2px dashed #e8963a; cursor: move; background: rgba(232,150,58,0.04); }
+        .page-title.dragging { border: 2px solid #e8963a; background: rgba(232,150,58,0.08); cursor: grabbing; z-index: 10; }
+        .page-subtitle {
+            font-weight: 400; margin-bottom: 22px; opacity: 0.75; outline: none;
+            min-height: 1em; word-break: break-word; letter-spacing: 0.5px; cursor: default;
+            position: relative; transition: box-shadow 0.15s ease, border-color 0.15s ease;
+            padding: 3px 6px; border-radius: 3px; border: 2px solid transparent;
+        }
+        .page-subtitle:hover { border: 2px dashed #e8963a; cursor: move; background: rgba(232,150,58,0.04); }
+        .page-subtitle.dragging { border: 2px solid #e8963a; background: rgba(232,150,58,0.08); cursor: grabbing; z-index: 10; }
+        .page-body {
+            flex: 1; line-height: 1.5; outline: none; white-space: pre-wrap;
+            word-break: break-word; overflow: hidden !important; cursor: text;
+            padding: 3px 6px; border-radius: 3px; border: 2px solid transparent;
+            transition: border-color 0.15s ease; min-height: 60px;
+            text-indent: 2em;
+            line-break: strict;
+            -webkit-line-break: strict;
+        }
+        .page-body:focus { border: 2px dashed var(--accent); background: rgba(122,82,48,0.02); }
+        .page-divider { border: none; height: 2px; background: #ccc; margin: 10px 0 18px; opacity: 0.5; transition: all 0.3s ease; }
+
+        .page.auto-continuation .page-title { display: none !important; }
+        .page.auto-continuation .page-subtitle { display: none !important; }
+        .page.auto-continuation .page-divider { display: none !important; }
+        .page.auto-continuation .page-body { padding-top: 0; margin-top: 0; text-indent: 2em; }
+        .page.auto-continuation .page-content { padding-top: 42px; }
+
+        /* ==================== 图片直接编辑 ==================== */
+        .page-image {
+            position: absolute;
+            cursor: move;
+            z-index: 2;
+            transition: box-shadow 0.15s ease, outline 0.15s ease;
+            pointer-events: auto;
+            transform-origin: center center;
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+        }
+        .page-image.selected {
+            outline: 2px solid #e8963a;
+            outline-offset: 2px;
+            z-index: 5 !important;
+        }
+        .page-image.bg-image { z-index: 0; cursor: default; outline-color: transparent !important; }
+        .page-image.bg-image.selected { outline: 2px solid #e8963a; }
+
+        .page-image .image-handle {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #e8963a;
+            border: 2px solid #fff;
+            border-radius: 2px;
+            display: none;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            z-index: 7;
+        }
+        .page-image.selected .image-handle { display: block; }
+
+        .page-image .handle-nw { top: -7px; left: -7px; cursor: nwse-resize; }
+        .page-image .handle-ne { top: -7px; right: -7px; cursor: nesw-resize; }
+        .page-image .handle-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+        .page-image .handle-se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+        .page-image .handle-n { top: -7px; left: 50%; margin-left: -7px; cursor: ns-resize; }
+        .page-image .handle-s { bottom: -7px; left: 50%; margin-left: -7px; cursor: ns-resize; }
+        .page-image .handle-w { top: 50%; left: -7px; margin-top: -7px; cursor: ew-resize; }
+        .page-image .handle-e { top: 50%; right: -7px; margin-top: -7px; cursor: ew-resize; }
+
+        .page-image .rotate-handle {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border: 2px solid #e8963a;
+            border-radius: 50%;
+            cursor: grab;
+            display: none;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            z-index: 7;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-image.selected .rotate-handle { display: flex; }
+        .rotate-handle::after { content: '↻'; font-size: 13px; color: #e8963a; font-weight: 700; pointer-events: none; }
+
+        .page-image .delete-handle {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background: #e74c3c;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            color: #fff;
+            font-size: 12px;
+            line-height: 18px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+            z-index: 8;
+        }
+        .page-image.selected .delete-handle { display: block; }
+
+        .page-image .image-info-badge {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            display: none;
+            pointer-events: none;
+            z-index: 7;
+        }
+        .page-image.selected .image-info-badge { display: block; }
+
+        .page-image .opacity-slider-container {
+            position: absolute;
+            bottom: -42px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            z-index: 7;
+            white-space: nowrap;
+        }
+        .page-image.selected .opacity-slider-container { display: flex; }
+        .opacity-slider-container input[type="range"] {
+            width: 60px;
+            height: 4px;
+            accent-color: #e8963a;
+            background: transparent;
+            cursor: pointer;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+        .opacity-slider-container span {
+            color: #fff;
+            font-size: 9px;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        /* ==================== 9套风格 ==================== */
+
+        .style-modern .page { background: #ffffff; }
+        .style-modern .page-title {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 26px; color: #111; font-weight: 900; letter-spacing: -0.5px;
+            text-align: left; border-left: 5px solid #e74c3c; padding-left: 16px;
+        }
+        .style-modern .page-subtitle {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 3px;
+            text-align: left; font-weight: 500;
+        }
+        .style-modern .page-body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 12px; color: #333; text-align: left; line-height: 1.5; font-weight: 300; text-indent: 2em;
+        }
+        .style-modern .page-divider { height: 1px; background: #e0e0e0; opacity: 1; margin: 14px 0 22px; }
+        .style-modern .page-content { padding: 48px 52px; }
+
+        .style-vintage .page { background: #f5efe4; }
+        .style-vintage .page-title {
+            font-family: 'ZCOOL XiaoWei', 'KaiTi', 'STKaiti', '楷体', serif;
+            font-size: 26px; color: #3d1f0a; letter-spacing: 4px; text-align: center; font-weight: 400;
+        }
+        .style-vintage .page-subtitle {
+            font-family: 'Noto Serif SC', 'STSong', serif;
+            font-size: 12px; color: #6b4d3a; text-align: center; letter-spacing: 6px; text-transform: uppercase; font-weight: 400;
+        }
+        .style-vintage .page-body {
+            font-family: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+            font-size: 13px; color: #3d2b1a; text-align: justify; text-indent: 2em; line-height: 1.6; letter-spacing: 0.3px;
+        }
+        .style-vintage .page-divider { height: 0; border-top: 2px dotted #c4a882; background: transparent; margin: 12px 30px 18px; opacity: 0.8; }
+        .style-vintage .page-content { padding: 38px 48px; }
+
+        .style-minimal .page { background: #ffffff; }
+        .style-minimal .page-title {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 22px; color: #1a1a1a; font-weight: 300; letter-spacing: 1px; text-align: left;
+        }
+        .style-minimal .page-subtitle {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 11px; color: #999; letter-spacing: 4px; text-transform: uppercase; font-weight: 300; text-align: left;
+        }
+        .style-minimal .page-body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 12px; color: #555; line-height: 1.5; text-align: left; font-weight: 300; letter-spacing: 0.2px; text-indent: 2em;
+        }
+        .style-minimal .page-divider { height: 1px; background: #ddd; opacity: 0.6; margin: 16px 0 24px; }
+        .style-minimal .page-content { padding: 56px 60px; }
+
+        .style-academic .page { background: #ffffff; }
+        .style-academic .page-title {
+            font-family: 'Noto Serif SC', 'SimSun', 'STSong', 'Songti SC', serif;
+            font-size: 20px; color: #000; font-weight: 700; text-align: center; letter-spacing: 0;
+        }
+        .style-academic .page-subtitle {
+            font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+            font-size: 12px; color: #444; text-align: center; font-style: italic; font-weight: 400;
+        }
+        .style-academic .page-body {
+            font-family: 'Noto Serif SC', 'SimSun', 'STSong', 'Songti SC', serif;
+            font-size: 12px; color: #111; text-align: justify; line-height: 1.6; letter-spacing: 0; text-indent: 2em;
+        }
+        .style-academic .page-divider { height: 1px; background: #000; opacity: 0.3; margin: 8px 0 16px; }
+        .style-academic .page-content { padding: 46px 52px; }
+
+        .style-business .page { background: #fcfcfc; }
+        .style-business .page-title {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 24px; color: #1a3a5c; font-weight: 700; letter-spacing: 0.5px;
+            text-align: left; padding-bottom: 6px; border-bottom: 3px solid #1a3a5c;
+        }
+        .style-business .page-subtitle {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 11px; color: #7a8a9a; text-align: left; font-weight: 400; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .style-business .page-body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 12px; color: #2c3e50; line-height: 1.5; text-align: justify; font-weight: 400; text-indent: 2em;
+        }
+        .style-business .page-divider { height: 1px; background: #d0d8e0; opacity: 0.7; margin: 12px 0 20px; }
+        .style-business .page-content { padding: 44px 50px; }
+
+        .style-letter .page { background: #fcf8f0; }
+        .style-letter .page-title {
+            font-family: 'Dancing Script', 'KaiTi', 'STKaiti', cursive;
+            font-size: 30px; color: #8b5a2b; font-weight: 700; text-align: center; letter-spacing: 1px; padding: 6px 0;
+        }
+        .style-letter .page-subtitle {
+            font-family: 'Noto Serif SC', 'STSong', serif;
+            font-size: 12px; color: #a08060; text-align: center; font-style: italic; letter-spacing: 3px; font-weight: 400;
+        }
+        .style-letter .page-body {
+            font-family: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+            font-size: 12px; color: #4a3520; line-height: 1.7; text-align: justify; text-indent: 2em; letter-spacing: 0.5px;
+        }
+        .style-letter .page-divider { height: 0; border-top: 1px dashed #d4b896; background: transparent; margin: 10px 20px 18px; opacity: 0.7; }
+        .style-letter .page-content { padding: 40px 46px; }
+
+        .style-tech .page { background: #ffffff; border: 2px solid #000000; }
+        .style-tech .page-title {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 28px; color: #000000; font-weight: 900; letter-spacing: 2px;
+            text-align: left; text-transform: uppercase;
+            border-left: 6px solid #000; padding-left: 16px;
+            padding-top: 2px; padding-bottom: 2px; margin-bottom: 4px;
+        }
+        .style-tech .page-subtitle {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 11px; color: #666666; letter-spacing: 4px; text-transform: uppercase;
+            font-weight: 400; text-align: left; margin-bottom: 18px; padding-left: 22px;
+        }
+        .style-tech .page-body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 12px; color: #222222; line-height: 1.5; text-align: left;
+            font-weight: 400; text-indent: 2em; letter-spacing: 0.2px;
+        }
+        .style-tech .page-divider { height: 3px; background: #000000; opacity: 0.9; margin: 10px 0 18px; border: none; border-radius: 0; }
+        .style-tech .page-content { padding: 40px 44px; border-top: 8px solid #000000; }
+        .style-tech.auto-continuation .page-content { border-top: none; padding-top: 44px; }
+
+        .style-eastern .page { background: #f5f0e8; }
+        .style-eastern .page-title {
+            font-family: 'ZCOOL XiaoWei', 'KaiTi', 'STKaiti', serif;
+            font-size: 28px; color: #2a1a0a; font-weight: 400; text-align: center; letter-spacing: 8px;
+        }
+        .style-eastern .page-subtitle {
+            font-family: 'Noto Serif SC', 'STSong', serif;
+            font-size: 12px; color: #7a6a5a; text-align: center; letter-spacing: 5px; font-weight: 300; text-transform: none;
+        }
+        .style-eastern .page-body {
+            font-family: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+            font-size: 12px; color: #3a2a1a; line-height: 1.8; text-align: justify; text-indent: 2em; letter-spacing: 0.6px;
+        }
+        .style-eastern .page-divider { height: 0; border-top: 1px solid #c8b898; background: transparent; margin: 10px 40px 16px; opacity: 0.5; }
+        .style-eastern .page-content { padding: 42px 48px; }
+
+        .style-creative .page { background: #ffffff; background-image: linear-gradient(135deg, rgba(255,200,50,0.03) 0%, rgba(255,100,100,0.03) 100%); }
+        .style-creative .page-title {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 30px; font-weight: 900; letter-spacing: -1px; text-align: left;
+            background: linear-gradient(135deg, #e74c3c, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .style-creative .page-subtitle {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 11px; color: #bbb; text-align: left; letter-spacing: 4px; text-transform: uppercase; font-weight: 700;
+        }
+        .style-creative .page-body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 12px; color: #444; line-height: 1.5; text-align: left; font-weight: 400; text-indent: 2em; letter-spacing: 0.2px;
+        }
+        .style-creative .page-divider { height: 4px; background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71); opacity: 0.8; margin: 14px 0 22px; border-radius: 2px; border: none; }
+        .style-creative .page-content { padding: 44px 48px; border-top: 4px solid #e74c3c; }
+
+        /* ==================== Toast & Progress ==================== */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--toast-bg); color: #fff; padding: 12px 28px; border-radius: 25px;
+            font-size: 0.9em; z-index: 999; pointer-events: none; opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+            font-weight: 500; letter-spacing: 0.5px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(5px); }
+        .toast.success { background: #27ae60; }
+        body.theme-green .toast.success { background: #1b5e20; }
+        .toast.error { background: #e74c3c; }
+        .toast.info { background: #2980b9; }
+
+        .progress-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3); z-index: 998;
+            display: none; align-items: center; justify-content: center;
+        }
+        .progress-overlay.show { display: flex; }
+        .progress-box {
+            background: #fff; padding: 30px 40px; border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); text-align: center;
+        }
+        body.theme-dark .progress-box { background: #1e2a4a; color: #c8d0e0; }
+        .progress-box p { font-size: 1em; color: #333; margin-bottom: 12px; }
+        body.theme-dark .progress-box p { color: #c8d0e0; }
+        .progress-bar-bg { width: 200px; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+        body.theme-dark .progress-bar-bg { background: #2a3a5e; }
+        .progress-bar-fill { height: 100%; background: #e8963a; width: 0%; transition: width 0.3s ease; border-radius: 4px; }
+
+        @media (max-width: 900px) {
+            :root { --sidebar-width: 310px; --spread-gap: 20px; }
+            .page-content { padding: 22px 18px !important; }
+            .preview-area { padding: 12px; }
+            .spread-row { flex-direction: column; align-items: center; gap: 30px; }
+            .pages-container.single-page-mode-mobile .spread-row { flex-direction: column; }
+            .pages-container.single-page-mode-mobile .spread-row > .page { margin-bottom: 20px; }
+            .page-image .opacity-slider-container { bottom: -36px; }
+            .page-image .opacity-slider-container input[type="range"] { width: 40px; }
         }
     </style>
 </head>
 <body>
-    <div class="game-wrapper">
-        <div class="game-header">
-            <div class="score-display">
-                <span class="score-label">分数</span>
-                <span class="score-value" id="scoreDisplay">0</span>
-            </div>
-            <div class="high-score-display">
-                <span class="hs-label">最高</span>
-                <span class="hs-value" id="highScoreDisplay">0</span>
-            </div>
-            <div class="next-preview">
-                <span class="label">下一个</span>
-                <div class="next-icon-wrap" id="nextPreviewWrap">
-                    <img id="nextPreviewImg" src="" alt="">
+
+    <div class="toast" id="toast"></div>
+    <div class="progress-overlay" id="progressOverlay">
+        <div class="progress-box">
+            <p id="progressText">正在导出...</p>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+        </div>
+    </div>
+
+    <!-- ==================== 侧边栏 ==================== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>📄 文章排版工具</h2>
+            <small>智能分页 · 直接编辑 · 9种风格</small>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">🎨 全局主题</div>
+            <div class="theme-selector" id="themeSelector">
+                <div class="theme-card active" data-theme="default">
+                    <span class="theme-swatch" style="background:#e6e3db;"></span>
+                    默认暖色
+                </div>
+                <div class="theme-card" data-theme="grayish">
+                    <span class="theme-swatch" style="background:#e8e6e1;"></span>
+                    灰白色
+                </div>
+                <div class="theme-card" data-theme="green">
+                    <span class="theme-swatch" style="background:#c8e6c9;"></span>
+                    浅绿护眼
+                </div>
+                <div class="theme-card" data-theme="dark" style="margin-top:4px;">
+                    <span class="theme-swatch" style="background:#1a1a2e;"></span>
+                    深色夜间
                 </div>
             </div>
         </div>
 
-        <div class="canvas-container" id="canvasContainer">
-            <canvas id="gameCanvas"></canvas>
-            
-            <div class="celebrate-overlay" id="celebrateOverlay">
-                <div class="celebrate-title">恭喜你合成大月巴！</div>
-                <div class="celebrate-subtitle">点击屏幕继续游戏</div>
-            </div>
+        <div class="sidebar-section">
+            <div class="section-title">📐 页面尺寸</div>
+            <label>纸张规格</label>
+            <select id="pageSizeSelect">
+                <option value="a4">A4 (210×297mm)</option>
+                <option value="a5" selected>A5 (148×210mm)</option>
+                <option value="b5">B5 (176×250mm)</option>
+                <option value="letter">Letter (216×279mm)</option>
+                <option value="legal">Legal (216×356mm)</option>
+            </select>
+        </div>
 
-            <div class="game-over-overlay" id="gameOverOverlay">
-                <div class="game-over-title" id="gameOverTitle">游戏结束</div>
-                <div class="game-over-score" id="gameOverScore">得分：0</div>
-                <div class="game-over-high-score" id="gameOverHighScore">最高分：0</div>
-                <button class="restart-btn" id="restartBtn">再来一局</button>
+        <div class="sidebar-section">
+            <div class="section-title">🎨 风格预设</div>
+            <div class="style-presets" id="stylePresets">
+                <div class="style-preset-card active" data-style="modern"><span class="style-preview-dot" style="background:#e74c3c;"></span>现代杂志</div>
+                <div class="style-preset-card" data-style="vintage"><span class="style-preview-dot" style="background:#c4a882;"></span>复古活字</div>
+                <div class="style-preset-card" data-style="minimal"><span class="style-preview-dot" style="background:#999;"></span>极简风格</div>
+                <div class="style-preset-card" data-style="academic"><span class="style-preview-dot" style="background:#000;"></span>学术期刊</div>
+                <div class="style-preset-card" data-style="business"><span class="style-preview-dot" style="background:#1a3a5c;"></span>商务简约</div>
+                <div class="style-preset-card" data-style="letter"><span class="style-preview-dot" style="background:#d4b896;"></span>文艺手札</div>
+                <div class="style-preset-card" data-style="tech"><span class="style-preview-dot" style="background:#000;"></span>科技先锋</div>
+                <div class="style-preset-card" data-style="eastern"><span class="style-preview-dot" style="background:#8b7a6a;"></span>东方美学</div>
+                <div class="style-preset-card" data-style="creative"><span class="style-preview-dot" style="background:#e74c3c;"></span>创意视觉</div>
             </div>
         </div>
 
-        <div class="hint-text-outer" id="hintTextOuter">点击或触摸释放月巴 | 两个相同月巴碰到一起即可合成</div>
+        <div class="sidebar-section">
+            <div class="section-title">✏️ 内容编辑</div>
+            <label>标题 <span style="font-weight:400;color:#999;">（拖拽移动）</span></label>
+            <input type="text" id="titleInput" placeholder="输入文章标题..." value="落霞与孤鹜齐飞">
+            <label style="margin-top:8px;">副标题 <span style="font-weight:400;color:#999;">（拖拽移动）</span></label>
+            <input type="text" id="subtitleInput" placeholder="输入副标题..." value="秋水共长天一色">
+            <label style="margin-top:8px;">正文内容 <span style="font-weight:400;color:#999;">（预览页直接编辑）</span></label>
+            <textarea id="bodyInput" placeholder="输入正文内容...">豫章故郡，洪都新府。星分翼轸，地接衡庐。襟三江而带五湖，控蛮荆而引瓯越。物华天宝，龙光射牛斗之墟；人杰地灵，徐孺下陈蕃之榻。雄州雾列，俊采星驰。台隍枕夷夏之交，宾主尽东南之美。
+
+都督阎公之雅望，棨戟遥临；宇文新州之懿范，襜帷暂驻。十旬休假，胜友如云；千里逢迎，高朋满座。腾蛟起凤，孟学士之词宗；紫电青霜，王将军之武库。家君作宰，路出名区；童子何知，躬逢胜饯。
+
+时维九月，序属三秋。潦水尽而寒潭清，烟光凝而暮山紫。俨骖騑于上路，访风景于崇阿。临帝子之长洲，得天人之旧馆。层峦耸翠，上出重霄；飞阁流丹，下临无地。鹤汀凫渚，穷岛屿之萦回；桂殿兰宫，即冈峦之体势。</textarea>
+            <p class="hint-text" style="margin-top:6px;">⚡ 正文无滚动条，<span style="color:#e8963a;font-weight:700;">溢出自动分页</span>，最后一行完整移至下一页。</p>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">🔤 文字设置</div>
+            <label>字体</label>
+            <select id="fontFamilySelect">
+                <option value="inherit">继承风格预设</option>
+                <option value="'Noto Serif SC','STSong','SimSun',serif">宋体/衬线</option>
+                <option value="'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">黑体/无衬线</option>
+                <option value="'ZCOOL XiaoWei','KaiTi','STKaiti',serif">楷体/手写风</option>
+                <option value="'Ma Shan Zheng',cursive">马山正/书法</option>
+                <option value="'Courier New',monospace">等宽字体</option>
+            </select>
+            <label style="margin-top:8px;">正文字号: <span id="fontSizeVal">12</span>px</label>
+            <input type="range" id="fontSizeSlider" min="10" max="28" value="12" step="0.5">
+            <label style="margin-top:6px;">行高: <span id="lineHeightVal">1.5</span></label>
+            <input type="range" id="lineHeightSlider" min="1.2" max="3" value="1.5" step="0.05">
+            <label style="margin-top:6px;">文字颜色</label>
+            <div class="color-input-wrap">
+                <input type="color" id="textColorPicker" value="#333333">
+                <span style="font-size:0.73em;color:#888;">（覆盖风格预设）</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">🖼️ 图片管理</div>
+            <div class="btn-row">
+                <button class="btn btn-primary btn-sm" id="uploadImageBtn">📤 上传装饰图</button>
+                <button class="btn btn-outline btn-sm" id="uploadBgBtn">🏞️ 上传底图</button>
+            </div>
+            <input type="file" id="imageFileInput" accept="image/*" style="display:none;">
+            <input type="file" id="bgFileInput" accept="image/*" style="display:none;">
+            <p class="hint-text">💡 选中图片后直接在预览区编辑：<br>· 拖拽移动 · 8向手柄缩放/变形 · 顶部圆圈旋转<br>· 底部滑块调透明度 · ×键删除 · 双击重置旋转</p>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">📑 页面管理</div>
+            <div class="page-thumb-list" id="pageThumbList"></div>
+            <div class="btn-row" style="margin-top:9px;">
+                <button class="btn btn-primary btn-sm" id="addPageBtn">＋ 新增</button>
+                <button class="btn btn-danger btn-sm" id="deletePageBtn" disabled>－ 删除</button>
+                <button class="btn btn-outline btn-sm" id="duplicatePageBtn">⧉ 复制</button>
+                <button class="btn btn-outline btn-sm" id="repaginateBtn" style="background:#e8963a;color:#fff;border-color:#e8963a;">🔄 重新分页</button>
+            </div>
+            <p style="font-size:0.7em;color:#999;margin-top:5px;">当前共 <strong id="totalPagesLabel">1</strong> 页
+                <span id="autoPageIndicator" style="display:none;"><span class="badge-auto">含自动续页</span></span>
+            </p>
+        </div>
+
+        <div class="sidebar-section">
+            <button class="btn btn-primary" id="exportBtn" style="width:100%;font-size:1em;padding:12px;">📥 导出当前页为PNG</button>
+            <button class="btn btn-outline" id="exportAllBtn" style="width:100%;font-size:0.9em;padding:8px;margin-top:6px;">📦 导出全部页面</button>
+            <p style="font-size:0.7em;color:#999;text-align:center;margin-top:5px;">高清输出 · 2倍分辨率 · Ctrl+S快捷导出当前页</p>
+        </div>
+    </aside>
+
+    <!-- ==================== 预览区域 ==================== -->
+    <div class="preview-area" id="previewArea">
+        <div class="pages-container" id="pagesContainer">
+        </div>
+    </div>
+
+    <div class="zoom-control" id="zoomControl">
+        <button id="zoomOutBtn">−</button>
+        <span id="zoomLabel">85%</span>
+        <button id="zoomInBtn">＋</button>
+        <button id="zoomFitBtn" style="border-radius:15px;width:auto;padding:0 10px;font-size:0.73em;">适应</button>
     </div>
 
     <script>
         (function() {
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const container = document.getElementById('canvasContainer');
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            const highScoreDisplay = document.getElementById('highScoreDisplay');
-            const nextPreviewImg = document.getElementById('nextPreviewImg');
-            const nextPreviewWrap = document.getElementById('nextPreviewWrap');
-            const gameOverOverlay = document.getElementById('gameOverOverlay');
-            const celebrateOverlay = document.getElementById('celebrateOverlay');
-            const gameOverTitle = document.getElementById('gameOverTitle');
-            const gameOverScore = document.getElementById('gameOverScore');
-            const gameOverHighScore = document.getElementById('gameOverHighScore');
-            const restartBtn = document.getElementById('restartBtn');
-            const hintTextOuter = document.getElementById('hintTextOuter');
+            'use strict';
 
-            // ==========================================
-            // 音效配置优化 (尽最大可能全自动解锁)
-            // ==========================================
-            const AUDIO_URL = 'https://videotourl.com/audio/1778018991962-05128d2b-0a13-4ef8-a993-c7ac5d139a17.mp3'; 
-            const dropSound = new Audio(AUDIO_URL);
-            dropSound.crossOrigin = 'anonymous'; 
-            dropSound.autoplay = true; 
+            const PAGE_SIZES = {
+                a4: { width: 595, height: 842, label: 'A4' },
+                a5: { width: 420, height: 595, label: 'A5' },
+                b5: { width: 499, height: 709, label: 'B5' },
+                letter: { width: 612, height: 792, label: 'Letter' },
+                legal: { width: 612, height: 1008, label: 'Legal' },
+            };
 
-            function playDropSound() {
-                const soundClone = dropSound.cloneNode();
-                soundClone.volume = 0.8;
-                soundClone.play().catch(() => {}); 
+            // ---- 全局状态 ----
+            let activePageIndex = 0;
+            let currentStyle = 'modern';
+            let currentTheme = 'default';
+            let zoomLevel = 0.85;
+            let selectedImageId = null;
+            let isDraggingImage = false;
+            let isResizing = false;
+            let isRotating = false;
+            let isDraggingTitle = false;
+            let isDraggingSubtitle = false;
+            let isFreeResizing = false;
+            let freeResizeHandle = '';
+            let dragStartX = 0, dragStartY = 0;
+            let dragOrigX = 0, dragOrigY = 0;
+            let dragOrigW = 0, dragOrigH = 0;
+            let dragOrigRotation = 0;
+            let dragOrigTitleX = 0, dragOrigTitleY = 0;
+            let dragOrigSubtitleX = 0, dragOrigSubtitleY = 0;
+            let imageIdCounter = 1;
+            let isSyncingFromBody = false;
+            let isSyncingFromInput = false;
+            let isAutoPaginating = false;
+            let paginateTimer = null;
+            let pendingPaginateIndex = null;
+            let isExporting = false;
+            let fontsLoaded = false;
+
+            // ---- 页面数据 ----
+            let pagesData = [{
+                title: '落霞与孤鹜齐飞',
+                subtitle: '秋水共长天一色',
+                body: '豫章故郡，洪都新府。星分翼轸，地接衡庐。襟三江而带五湖，控蛮荆而引瓯越。物华天宝，龙光射牛斗之墟；人杰地灵，徐孺下陈蕃之榻。雄州雾列，俊采星驰。台隍枕夷夏之交，宾主尽东南之美。\n\n都督阎公之雅望，棨戟遥临；宇文新州之懿范，襜帷暂驻。十旬休假，胜友如云；千里逢迎，高朋满座。腾蛟起凤，孟学士之词宗；紫电青霜，王将军之武库。家君作宰，路出名区；童子何知，躬逢胜饯。\n\n时维九月，序属三秋。潦水尽而寒潭清，烟光凝而暮山紫。俨骖騑于上路，访风景于崇阿。临帝子之长洲，得天人之旧馆。层峦耸翠，上出重霄；飞阁流丹，下临无地。鹤汀凫渚，穷岛屿之萦回；桂殿兰宫，即冈峦之体势。',
+                titleOffsetX: 0, titleOffsetY: 0,
+                subtitleOffsetX: 0, subtitleOffsetY: 0,
+                images: [],
+                isAutoPage: false
+            }];
+
+            // ---- DOM 引用 ----
+            const $pagesContainer = document.getElementById('pagesContainer');
+            const $previewArea = document.getElementById('previewArea');
+            const $pageThumbList = document.getElementById('pageThumbList');
+            const $titleInput = document.getElementById('titleInput');
+            const $subtitleInput = document.getElementById('subtitleInput');
+            const $bodyInput = document.getElementById('bodyInput');
+            const $pageSizeSelect = document.getElementById('pageSizeSelect');
+            const $fontSizeSlider = document.getElementById('fontSizeSlider');
+            const $fontSizeVal = document.getElementById('fontSizeVal');
+            const $lineHeightSlider = document.getElementById('lineHeightSlider');
+            const $lineHeightVal = document.getElementById('lineHeightVal');
+            const $textColorPicker = document.getElementById('textColorPicker');
+            const $fontFamilySelect = document.getElementById('fontFamilySelect');
+            const $totalPagesLabel = document.getElementById('totalPagesLabel');
+            const $autoPageIndicator = document.getElementById('autoPageIndicator');
+            const $deletePageBtn = document.getElementById('deletePageBtn');
+            const $zoomLabel = document.getElementById('zoomLabel');
+            const $toast = document.getElementById('toast');
+            const $progressOverlay = document.getElementById('progressOverlay');
+            const $progressText = document.getElementById('progressText');
+            const $progressBarFill = document.getElementById('progressBarFill');
+            const $themeSelector = document.getElementById('themeSelector');
+            let toastTimer;
+
+            function showToast(msg, type = '') {
+                clearTimeout(toastTimer);
+                $toast.textContent = msg;
+                $toast.className = 'toast ' + type + ' show';
+                toastTimer = setTimeout(() => { $toast.classList.remove('show'); }, 2200);
             }
 
-            function unlockAudio() {
-                dropSound.play().then(() => { 
-                    dropSound.pause(); 
-                    dropSound.currentTime = 0; 
-                }).catch(() => {});
-                const events = ['touchstart', 'mousedown', 'keydown', 'mousemove', 'wheel', 'scroll'];
-                events.forEach(evt => document.removeEventListener(evt, unlockAudio));
-            }
-            const events = ['touchstart', 'mousedown', 'keydown', 'mousemove', 'wheel', 'scroll'];
-            events.forEach(evt => document.addEventListener(evt, unlockAudio, { once: true }));
-
-            const FRUIT_DATA = [
-                { name: '月巴1', radius: 17, color: '#c44b4b', glow: '#e88080', score: 1, imageUrl: 'https://img.heliar.top/file/1777999332387_1.jpg' },
-                { name: '月巴2', radius: 23, color: '#c94b4b', glow: '#e89090', score: 2, imageUrl: 'https://img.heliar.top/file/1777999331317_2.jpg' },
-                { name: '月巴3', radius: 29, color: '#7b4a9e', glow: '#b890d0', score: 4, imageUrl: 'https://img.heliar.top/file/1777999338153_3.jpg' },
-                { name: '月巴4', radius: 36, color: '#d4852a', glow: '#f0b860', score: 8, imageUrl: 'https://img.heliar.top/file/1777999337478_4.jpg' },
-                { name: '月巴5', radius: 44, color: '#b03a3a', glow: '#e87878', score: 16, imageUrl: 'https://img.heliar.top/file/1777999337162_5.jpg' },
-                { name: '月巴6', radius: 53, color: '#8da838', glow: '#c8d870', score: 32, imageUrl: 'https://img.heliar.top/file/1777999340463_6.jpg' },
-                { name: '月巴7', radius: 63, color: '#e0a890', glow: '#f8d4c0', score: 64, imageUrl: 'https://img.heliar.top/file/1777999344250_7.jpg' },
-                { name: '月巴8', radius: 74, color: '#d8b038', glow: '#f0d870', score: 128, imageUrl: 'https://img.heliar.top/file/1777999338141_8.jpg' },
-                { name: '月巴9', radius: 86, color: '#6aad5e', glow: '#98d888', score: 256, imageUrl: 'https://img.heliar.top/file/1777999341749_9.jpg' },
-                { name: '月巴10', radius: 100, color: '#3a7a3a', glow: '#70c870', score: 512, imageUrl: 'https://img.heliar.top/file/1777999348272_11.jpg' },
-            ];
-            const MAX_LEVEL = FRUIT_DATA.length - 1;
-            const imageCache = {};
-
-            function loadImage(url) {
-                if (!url) return null;
-                if (!imageCache[url]) {
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.src = url;
-                    imageCache[url] = img;
-                }
-                return imageCache[url];
+            function getPageSize() {
+                return PAGE_SIZES[$pageSizeSelect.value] || PAGE_SIZES.a5;
             }
 
-            function preloadAllImages() {
-                for (const data of FRUIT_DATA) { if (data.imageUrl) loadImage(data.imageUrl); }
+            function getPageData(index) {
+                return pagesData[index] || null;
             }
 
-            const STORAGE_KEY = 'mergeYueBaHighScore_v10';
-            function getHighScore() { try { const val = localStorage.getItem(STORAGE_KEY); return val ? parseInt(val) : 0; } catch (e) { return 0; } }
-            function setHighScore(val) { try { localStorage.setItem(STORAGE_KEY, val.toString()); } catch (e) {} }
+            function getActivePageData() {
+                return getPageData(activePageIndex);
+            }
 
-            let highScore = getHighScore();
-            function updateHighScoreDisplay() { highScoreDisplay.textContent = highScore; }
+            function getPageStyleClasses() {
+                return 'style-' + currentStyle;
+            }
 
-            let fruits = [];
-            let previewFruit = null;
-            let nextFruitLevel = 0;
-            let particles = [];
-            let score = 0;
-            let displayedScore = 0; 
-            let gameOver = false;
-            let canRestart = false; 
-            
-            let isCelebrating = false;
-            let celebrationInterval = null;
-            let releaseCooldown = 0;
-            let shakeAmount = 0;
-            let shakeX = 0;
-            let shakeY = 0;
-            let fruitIdCounter = 0;
-            let mergeChainCount = 0;
-            let hintOpacity = 1;
-            let hasFirstDrop = false;
-            let dangerTimer = 0;
+            function isMobile() {
+                return window.innerWidth < 900;
+            }
 
-            let canvasWidth = 375;
-            let canvasHeight = 600;
-            let dpr = 1;
-
-            let wallLeft = 0;
-            let wallRight = 375;
-            let groundY = 600;
-            let dangerLineY = 120;
-
-            const GRAVITY = 0.28;
-            const WALL_RESTITUTION = 0.4;
-            const GROUND_RESTITUTION = 0.3;
-            const FRICTION = 0.78;
-            const FRUIT_FRUIT_RESTITUTION = 0.68;
-            const RELEASE_COOLDOWN_FRAMES = 25;
-            const DANGER_TIMER_LIMIT = 90; 
-
-            function resizeCanvas() {
-                const rect = container.getBoundingClientRect();
-                const cssWidth = rect.width;
-                const cssHeight = rect.height;
-                dpr = Math.min(window.devicePixelRatio || 1, 2);
-                canvasWidth = Math.floor(cssWidth * dpr);
-                canvasHeight = Math.floor(cssHeight * dpr);
-                canvas.width = canvasWidth;
-                canvas.height = canvasHeight;
-                canvas.style.width = cssWidth + 'px';
-                canvas.style.height = cssHeight + 'px';
-                wallLeft = 0;
-                wallRight = canvasWidth;
-                groundY = canvasHeight;
-                dangerLineY = Math.floor(canvasHeight * 0.18);
-                if (previewFruit && previewFruit.level !== undefined) {
-                    const r = FRUIT_DATA[previewFruit.level].radius * dpr;
-                    previewFruit.y = Math.floor(dangerLineY * 0.55);
-                    previewFruit.radius = r;
-                    previewFruit.x = Math.max(r, Math.min(canvasWidth - r, previewFruit.x || canvasWidth / 2));
+            // ---- 字体预加载 ----
+            async function ensureFontsLoaded() {
+                if (fontsLoaded) return true;
+                try {
+                    await document.fonts.ready;
+                    // 等待所有字体加载
+                    const fontList = ['Noto Sans SC', 'Noto Serif SC', 'ZCOOL XiaoWei', 'Ma Shan Zheng', 'Dancing Script', 'Orbitron'];
+                    await Promise.all(fontList.map(font => 
+                        document.fonts.load(`1em "${font}"`).catch(() => {})
+                    ));
+                    fontsLoaded = true;
+                    return true;
+                } catch (e) {
+                    console.warn('Font loading warning:', e);
+                    fontsLoaded = true;
+                    return true;
                 }
             }
 
-            function updateScoreDisplay() {
-                displayedScore = score;
-                scoreDisplay.textContent = displayedScore;
-                scoreDisplay.classList.remove('pulse');
+            // ---- 主题切换 ----
+            function applyTheme(theme) {
+                currentTheme = theme;
+                document.body.className = '';
+                if (theme !== 'default') {
+                    document.body.classList.add('theme-' + theme);
+                }
+                document.querySelectorAll('.theme-card').forEach(card => {
+                    card.classList.toggle('active', card.dataset.theme === theme);
+                });
             }
 
-            function triggerScorePulse() {
-                scoreDisplay.classList.remove('pulse');
-                void scoreDisplay.offsetWidth; 
-                scoreDisplay.classList.add('pulse');
-            }
+            // ======================== 页面渲染引擎 ========================
 
-            function initGame() {
-                hideCelebration(); 
-                fruits = [];
-                particles = [];
-                score = 0;
-                displayedScore = 0;
-                gameOver = false;
-                canRestart = false;
-                releaseCooldown = 0;
-                shakeAmount = 0;
-                shakeX = 0;
-                shakeY = 0;
-                fruitIdCounter = 0;
-                mergeChainCount = 0;
-                hintOpacity = 1;
-                hasFirstDrop = false;
-                dangerTimer = 0; 
-                nextFruitLevel = randomFruitLevel();
-                spawnPreviewFruit();
-                updateScoreDisplay(); 
-                updateNextPreview();
-                updateHighScoreDisplay();
-                gameOverOverlay.classList.remove('active');
-                gameOverHighScore.classList.remove('new-record');
-                hintTextOuter.style.opacity = '1';
-                resizeCanvas();
-            }
+            function renderAllPages() {
+                const size = getPageSize();
+                const mobile = isMobile();
+                $pagesContainer.innerHTML = '';
 
-            function showCelebration() {
-                if (isCelebrating) return;
-                isCelebrating = true;
-                celebrateOverlay.classList.add('active');
-                
-                celebrationInterval = setInterval(() => {
-                    if (!isCelebrating) {
-                        clearInterval(celebrationInterval);
-                        return;
+                if (pagesData.length === 0) {
+                    $pagesContainer.classList.add('single-page-mode');
+                    return;
+                }
+
+                const total = pagesData.length;
+
+                if (total === 1 || mobile) {
+                    $pagesContainer.classList.add('single-page-mode');
+                    if (mobile && total > 1) {
+                        $pagesContainer.classList.add('single-page-mode-mobile');
+                    } else {
+                        $pagesContainer.classList.remove('single-page-mode-mobile');
                     }
-                    const x = canvasWidth * 0.1 + Math.random() * canvasWidth * 0.8;
-                    const y = canvasHeight * 0.2 + Math.random() * canvasHeight * 0.5;
-                    spawnParticles(x, y, 15, '#f0b860', '#ffffff', 2.5);
-                }, 300);
-            }
+                    for (let i = 0; i < total; i++) {
+                        const pageEl = createPageElement(i, size);
+                        $pagesContainer.appendChild(pageEl);
+                    }
+                } else {
+                    $pagesContainer.classList.remove('single-page-mode');
+                    $pagesContainer.classList.remove('single-page-mode-mobile');
 
-            function hideCelebration() {
-                if (!isCelebrating) return;
-                isCelebrating = false;
-                celebrateOverlay.classList.remove('active');
-                if (celebrationInterval) clearInterval(celebrationInterval);
-            }
+                    for (let i = 0; i < total; i += 2) {
+                        const row = document.createElement('div');
+                        row.className = 'spread-row';
 
-            function randomFruitLevel() {
-                const weights = [28, 25, 20, 14, 9, 3, 1, 0, 0, 0];
-                const totalWeight = weights.reduce((a, b) => a + b, 0);
-                let rand = Math.random() * totalWeight;
-                for (let i = 0; i < weights.length; i++) {
-                    rand -= weights[i];
-                    if (rand <= 0) return i;
+                        const leftPage = createPageElement(i, size);
+                        row.appendChild(leftPage);
+
+                        if (i + 1 < total) {
+                            const rightPage = createPageElement(i + 1, size);
+                            row.appendChild(rightPage);
+                        } else {
+                            const placeholder = document.createElement('div');
+                            placeholder.style.width = size.width + 'px';
+                            placeholder.style.height = size.height + 'px';
+                            placeholder.style.opacity = '0';
+                            placeholder.style.pointerEvents = 'none';
+                            row.appendChild(placeholder);
+                        }
+
+                        $pagesContainer.appendChild(row);
+                    }
                 }
-                return 4;
+
+                highlightActivePage();
+                updatePageLabels();
+                updatePageThumbs();
+                syncSidebarFromActivePage();
             }
 
-            function spawnPreviewFruit() {
-                const level = nextFruitLevel;
-                const data = FRUIT_DATA[level];
-                const r = data.radius * dpr;
-                previewFruit = {
-                    level: level,
-                    x: canvasWidth / 2,
-                    y: Math.floor(dangerLineY * 0.55),
-                    radius: r,
-                    color: data.color,
-                    glow: data.glow,
-                    name: data.name,
-                    imageUrl: data.imageUrl,
-                };
-                previewFruit.x = Math.max(r, Math.min(canvasWidth - r, previewFruit.x));
-                nextFruitLevel = randomFruitLevel();
-                updateNextPreview();
-            }
+            function createPageElement(index, size) {
+                const data = getPageData(index);
+                if (!data) {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'page ' + getPageStyleClasses();
+                    fallback.style.width = size.width + 'px';
+                    fallback.style.height = size.height + 'px';
+                    return fallback;
+                }
 
-            function releaseFruit() {
-                if (gameOver || isCelebrating) return;
-                if (releaseCooldown > 0) return;
-                if (!previewFruit) return;
-                
-                playDropSound(); 
+                const page = document.createElement('div');
+                page.className = 'page ' + getPageStyleClasses() + (data.isAutoPage ? ' auto-continuation' : '');
+                page.dataset.pageIndex = index;
+                page.style.width = size.width + 'px';
+                page.style.height = size.height + 'px';
 
-                const level = previewFruit.level;
-                const data = FRUIT_DATA[level];
-                const fruit = {
-                    id: fruitIdCounter++,
-                    level: level,
-                    x: previewFruit.x,
-                    y: previewFruit.y,
-                    vx: (Math.random() - 0.5) * 0.8,
-                    vy: 1.2,
-                    radius: data.radius * dpr,
-                    color: data.color,
-                    glow: data.glow,
-                    name: data.name,
-                    imageUrl: data.imageUrl,
-                    mergeCooldown: 0,
-                    age: 0, 
-                    exists: true,
-                };
-                fruit.x = Math.max(fruit.radius, Math.min(canvasWidth - fruit.radius, fruit.x));
-                fruits.push(fruit);
-                releaseCooldown = RELEASE_COOLDOWN_FRAMES;
-                hasFirstDrop = true;
-                hintOpacity = 0;
-                spawnPreviewFruit();
-            }
+                if (index === activePageIndex) {
+                    page.classList.add('active-page');
+                }
 
-            function updateNextPreview() {
-                const data = FRUIT_DATA[nextFruitLevel];
-                if (data.imageUrl) nextPreviewImg.src = data.imageUrl;
-                nextPreviewWrap.title = data.name;
-            }
+                const content = document.createElement('div');
+                content.className = 'page-content';
 
-            function spawnParticles(x, y, count, color, glowColor, intensity = 1) {
-                const actualCount = Math.min(Math.floor(count), 100 - particles.length);
-                for (let i = 0; i < actualCount; i++) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = (2 + Math.random() * 7) * intensity;
-                    const life = 25 + Math.random() * 35;
-                    particles.push({
-                        x, y,
-                        vx: Math.cos(angle) * speed,
-                        vy: Math.sin(angle) * speed - Math.random() * 4 * intensity,
-                        life, maxLife: life,
-                        radius: 1.5 + Math.random() * 4 * intensity,
-                        color: Math.random() < 0.5 ? color : glowColor,
-                        gravity: 0.06 + Math.random() * 0.08,
+                const title = document.createElement('div');
+                title.className = 'page-title';
+                title.contentEditable = false;
+                title.textContent = data.title || '';
+                title.dataset.field = 'title';
+                content.appendChild(title);
+
+                const subtitle = document.createElement('div');
+                subtitle.className = 'page-subtitle';
+                subtitle.contentEditable = false;
+                subtitle.textContent = data.subtitle || '';
+                subtitle.dataset.field = 'subtitle';
+                content.appendChild(subtitle);
+
+                const divider = document.createElement('hr');
+                divider.className = 'page-divider';
+                content.appendChild(divider);
+
+                const body = document.createElement('div');
+                body.className = 'page-body';
+                body.contentEditable = true;
+                body.textContent = data.body || '';
+                body.dataset.field = 'body';
+                body.style.overflow = 'hidden';
+                content.appendChild(body);
+
+                page.appendChild(content);
+
+                if (data.images && data.images.length > 0) {
+                    data.images.forEach(imgData => {
+                        const container = createImageContainerInPage(imgData, page, index);
+                        page.appendChild(container);
                     });
                 }
-                while (particles.length > 100) particles.shift();
-            }
 
-            function updateParticles() {
-                for (let i = particles.length - 1; i >= 0; i--) {
-                    const p = particles[i];
-                    p.x += p.vx; p.y += p.vy; p.vy += p.gravity;
-                    p.life--;
-                    if (p.life <= 0) particles.splice(i, 1);
-                }
-            }
+                // ---- 事件绑定 ----
+                page.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('.image-handle') || e.target.closest('.rotate-handle') ||
+                        e.target.closest('.delete-handle') || e.target.closest('.opacity-slider-container') ||
+                        e.target.closest('.page-image')) return;
+                    setActivePage(index);
+                });
 
-            function drawParticles(ctx) {
-                for (const p of particles) {
-                    const alpha = p.life / p.maxLife;
-                    const r = p.radius * alpha;
-                    if (p.color.startsWith('#')) {
-                        const rh = parseInt(p.color.slice(1, 3), 16);
-                        const gh = parseInt(p.color.slice(3, 5), 16);
-                        const bh = parseInt(p.color.slice(5, 7), 16);
-                        ctx.fillStyle = `rgba(${rh},${gh},${bh},${alpha})`;
-                    } else {
-                        ctx.fillStyle = p.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+                body.addEventListener('input', () => {
+                    if (isSyncingFromBody) return;
+                    const text = body.textContent;
+                    if (getPageData(index)) {
+                        getPageData(index).body = text;
                     }
-                    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
-                    if (alpha > 0.4) {
-                        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.5})`;
-                        ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.5, 0, Math.PI * 2); ctx.fill();
+                    if (index === activePageIndex && !isSyncingFromInput) {
+                        isSyncingFromBody = true;
+                        $bodyInput.value = text;
+                        isSyncingFromBody = false;
                     }
-                }
+                    schedulePaginateCheck(index);
+                });
+
+                body.addEventListener('focus', () => { setActivePage(index); });
+
+                body.addEventListener('paste', () => {
+                    setTimeout(() => {
+                        const text = body.textContent;
+                        if (getPageData(index)) { getPageData(index).body = text; }
+                        if (index === activePageIndex && !isSyncingFromInput) {
+                            isSyncingFromBody = true;
+                            $bodyInput.value = text;
+                            isSyncingFromBody = false;
+                        }
+                        schedulePaginateCheck(index);
+                    }, 30);
+                });
+
+                title.addEventListener('mousedown', (e) => {
+                    if (e.target === title) {
+                        setActivePage(index);
+                        isDraggingTitle = true;
+                        dragStartX = e.clientX; dragStartY = e.clientY;
+                        dragOrigTitleX = data.titleOffsetX || 0;
+                        dragOrigTitleY = data.titleOffsetY || 0;
+                        title.classList.add('dragging');
+                        e.preventDefault();
+                    }
+                });
+
+                subtitle.addEventListener('mousedown', (e) => {
+                    if (e.target === subtitle) {
+                        setActivePage(index);
+                        isDraggingSubtitle = true;
+                        dragStartX = e.clientX; dragStartY = e.clientY;
+                        dragOrigSubtitleX = data.subtitleOffsetX || 0;
+                        dragOrigSubtitleY = data.subtitleOffsetY || 0;
+                        subtitle.classList.add('dragging');
+                        e.preventDefault();
+                    }
+                });
+
+                applyPageTitleOffset(page, data);
+                applyPageSubtitleOffset(page, data);
+                applyFontOverridesToPage(body);
+
+                return page;
             }
 
-            function triggerShake(intensity) { shakeAmount = Math.max(shakeAmount, intensity); }
-            function updateShake() {
-                if (shakeAmount > 0.01) {
-                    shakeX = (Math.random() - 0.5) * shakeAmount * 2;
-                    shakeY = (Math.random() - 0.5) * shakeAmount * 2;
-                    shakeAmount *= 0.85;
+            // ======================== 直接图片编辑系统 ========================
+
+            function createImageContainerInPage(imgData, pageEl, pageIndex) {
+                const container = document.createElement('div');
+                container.className = 'page-image' + (imgData.isBackground ? ' bg-image' : '');
+                container.dataset.imageId = imgData.id;
+                container.dataset.pageIndex = pageIndex;
+                container.style.left = imgData.x + 'px';
+                container.style.top = imgData.y + 'px';
+                container.style.width = imgData.width + 'px';
+                container.style.height = imgData.height + 'px';
+                container.style.opacity = imgData.opacity;
+                container.style.transform = `rotate(${imgData.rotation || 0}deg)`;
+                container.style.zIndex = imgData.isBackground ? '0' : '2';
+
+                const img = document.createElement('img');
+                img.src = imgData.src;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.pointerEvents = 'none';
+                img.draggable = false;
+                container.appendChild(img);
+
+                // 8个方向手柄
+                const positions = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+                positions.forEach(pos => {
+                    const handle = document.createElement('div');
+                    handle.className = 'image-handle handle-' + pos;
+                    handle.dataset.handle = pos;
+                    handle.addEventListener('mousedown', (e) => {
+                        e.stopPropagation(); e.preventDefault();
+                        selectedImageId = imgData.id;
+                        setActivePage(pageIndex);
+                        updateImageSelection(container);
+                        isFreeResizing = true;
+                        isDraggingImage = false;
+                        isRotating = false;
+                        freeResizeHandle = pos;
+                        dragStartX = e.clientX; dragStartY = e.clientY;
+                        dragOrigX = imgData.x; dragOrigY = imgData.y;
+                        dragOrigW = imgData.width; dragOrigH = imgData.height;
+                    });
+                    container.appendChild(handle);
+                });
+
+                // 旋转手柄
+                const rotateHandle = document.createElement('div');
+                rotateHandle.className = 'rotate-handle';
+                rotateHandle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation(); e.preventDefault();
+                    selectedImageId = imgData.id;
+                    setActivePage(pageIndex);
+                    updateImageSelection(container);
+                    isRotating = true; isDraggingImage = false; isFreeResizing = false;
+                    dragStartX = e.clientX; dragStartY = e.clientY;
+                    dragOrigRotation = imgData.rotation || 0;
+                });
+                container.appendChild(rotateHandle);
+
+                // 删除手柄
+                const deleteHandle = document.createElement('div');
+                deleteHandle.className = 'delete-handle';
+                deleteHandle.textContent = '×';
+                deleteHandle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation(); e.preventDefault();
+                    deleteImageFromPage(imgData.id, pageIndex);
+                });
+                container.appendChild(deleteHandle);
+
+                // 信息标签
+                const infoBadge = document.createElement('div');
+                infoBadge.className = 'image-info-badge';
+                infoBadge.textContent = Math.round(imgData.width) + '×' + Math.round(imgData.height);
+                container.appendChild(infoBadge);
+
+                // 透明度滑块
+                const opacityContainer = document.createElement('div');
+                opacityContainer.className = 'opacity-slider-container';
+                const opacitySlider = document.createElement('input');
+                opacitySlider.type = 'range';
+                opacitySlider.min = '0.05';
+                opacitySlider.max = '1';
+                opacitySlider.step = '0.05';
+                opacitySlider.value = imgData.opacity;
+                const opacityLabel = document.createElement('span');
+                opacityLabel.textContent = Math.round(imgData.opacity * 100) + '%';
+                opacitySlider.addEventListener('input', (e) => {
+                    e.stopPropagation();
+                    const val = parseFloat(opacitySlider.value);
+                    imgData.opacity = val;
+                    container.style.opacity = val;
+                    opacityLabel.textContent = Math.round(val * 100) + '%';
+                });
+                opacitySlider.addEventListener('mousedown', (e) => e.stopPropagation());
+                opacityContainer.appendChild(opacitySlider);
+                opacityContainer.appendChild(opacityLabel);
+                container.appendChild(opacityContainer);
+
+                // 拖拽移动
+                container.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('.image-handle') || e.target.closest('.rotate-handle') ||
+                        e.target.closest('.delete-handle') || e.target.closest('.opacity-slider-container') ||
+                        e.target.closest('input')) return;
+                    selectedImageId = imgData.id;
+                    setActivePage(pageIndex);
+                    updateImageSelection(container);
+                    if (!imgData.isBackground) {
+                        isDraggingImage = true;
+                        isResizing = false; isRotating = false; isFreeResizing = false;
+                        dragStartX = e.clientX; dragStartY = e.clientY;
+                        dragOrigX = imgData.x; dragOrigY = imgData.y;
+                    }
+                    e.preventDefault();
+                });
+
+                // 双击重置旋转
+                container.addEventListener('dblclick', (e) => {
+                    if (e.target.closest('.opacity-slider-container') || e.target.closest('input')) return;
+                    imgData.rotation = 0;
+                    container.style.transform = 'rotate(0deg)';
+                });
+
+                if (imgData.id === selectedImageId) container.classList.add('selected');
+
+                return container;
+            }
+
+            function updateImageSelection(container) {
+                document.querySelectorAll('.page-image').forEach(el => {
+                    el.classList.toggle('selected', el === container);
+                });
+            }
+
+            function updateGlobalImageSelection() {
+                document.querySelectorAll('.page-image').forEach(el => {
+                    const id = parseInt(el.dataset.imageId);
+                    el.classList.toggle('selected', id === selectedImageId);
+                    const pageIdx = parseInt(el.dataset.pageIndex);
+                    const data = getPageData(pageIdx);
+                    let isBg = false;
+                    if (data) {
+                        const imgData = data.images.find(i => i.id === id);
+                        if (imgData) isBg = imgData.isBackground;
+                    }
+                    el.style.zIndex = isBg ? '0' : (id === selectedImageId ? '5' : '2');
+                });
+            }
+
+            function performFreeResize(e, handle, imgData, container) {
+                const dx = e.clientX - dragStartX;
+                const dy = e.clientY - dragStartY;
+                let newX = dragOrigX, newY = dragOrigY;
+                let newW = dragOrigW, newH = dragOrigH;
+
+                if (handle.includes('e')) { newW = Math.max(20, dragOrigW + dx); }
+                if (handle.includes('w')) { newW = Math.max(20, dragOrigW - dx); newX = dragOrigX + (dragOrigW - newW); }
+                if (handle.includes('s')) { newH = Math.max(20, dragOrigH + dy); }
+                if (handle.includes('n')) { newH = Math.max(20, dragOrigH - dy); newY = dragOrigY + (dragOrigH - newH); }
+
+                imgData.x = newX; imgData.y = newY;
+                imgData.width = newW; imgData.height = newH;
+                container.style.left = newX + 'px';
+                container.style.top = newY + 'px';
+                container.style.width = newW + 'px';
+                container.style.height = newH + 'px';
+
+                const badge = container.querySelector('.image-info-badge');
+                if (badge) badge.textContent = Math.round(newW) + '×' + Math.round(newH);
+            }
+
+            // ======================== 辅助函数 ========================
+
+            function applyPageTitleOffset(pageEl, data) {
+                const title = pageEl.querySelector('.page-title');
+                if (!title) return;
+                if (data && (data.titleOffsetX !== 0 || data.titleOffsetY !== 0)) {
+                    title.style.transform = `translate(${data.titleOffsetX}px, ${data.titleOffsetY}px)`;
+                    title.style.position = 'relative'; title.style.zIndex = '3';
                 } else {
-                    shakeX = 0; shakeY = 0; shakeAmount = 0;
+                    title.style.transform = ''; title.style.position = ''; title.style.zIndex = '';
                 }
             }
 
-            function tryMergeFruits() {
-                let merged = false;
-                let iterations = 0;
-                const maxIterations = 5; 
-                do {
-                    merged = false;
-                    const byLevel = {};
-                    for (const fruit of fruits) {
-                        if (!fruit.exists) continue;
-                        if (fruit.level >= MAX_LEVEL) continue;
-                        const lv = fruit.level;
-                        if (!byLevel[lv]) byLevel[lv] = [];
-                        byLevel[lv].push(fruit);
-                    }
-                    for (const levelKey in byLevel) {
-                        const level = parseInt(levelKey);
-                        const sameLevelFruits = byLevel[levelKey];
-                        if (sameLevelFruits.length < 2) continue; 
-                        
-                        const r = sameLevelFruits[0].radius;
-                        const contactThreshold = r * 2.05; 
-                        let foundPair = null;
-                        const n = sameLevelFruits.length;
-                        
-                        for (let i = 0; i < n && !foundPair; i++) {
-                            const fi = sameLevelFruits[i];
-                            for (let j = i + 1; j < n && !foundPair; j++) {
-                                const fj = sameLevelFruits[j];
-                                const dij = Math.hypot(fi.x - fj.x, fi.y - fj.y);
-                                if (dij < contactThreshold) {
-                                    const cx = (fi.x + fj.x) / 2;
-                                    const cy = (fi.y + fj.y) / 2;
-                                    foundPair = { f1: fi, f2: fj, cx, cy };
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        if (foundPair) {
-                            const { f1, f2, cx, cy } = foundPair;
-                            const newLevel = level + 1;
-                            const newData = FRUIT_DATA[newLevel];
-                            const newRadius = newData.radius * dpr;
-                            const cvx = (f1.vx + f2.vx) / 2;
-                            const cvy = (f1.vy + f2.vy) / 2;
-                            const clampedX = Math.max(newRadius, Math.min(canvasWidth - newRadius, cx));
-                            const clampedY = Math.min(groundY - newRadius, Math.max(newRadius, cy));
-                            const newFruit = {
-                                id: fruitIdCounter++,
-                                level: newLevel, x: clampedX, y: clampedY,
-                                vx: cvx + (Math.random() - 0.5) * 1.0,
-                                vy: cvy - 2.0,
-                                radius: newRadius,
-                                color: newData.color, glow: newData.glow,
-                                name: newData.name, imageUrl: newData.imageUrl,
-                                mergeCooldown: 8, 
-                                age: 0,
-                                exists: true,
-                            };
-                            f1.exists = false; f2.exists = false;
-                            fruits.push(newFruit);
-                            mergeChainCount++;
-                            
-                            const particleIntensity = 1 + mergeChainCount * 0.3;
-                            const particleCount = 15 + newLevel * 5 + mergeChainCount * 5;
-                            spawnParticles(clampedX, clampedY, particleCount, newData.color, newData.glow, particleIntensity);
-                            triggerShake(2 + newLevel * 1.5 + mergeChainCount * 0.5);
-                            
-                            const baseMergeScore = FRUIT_DATA[level].score * 2;
-                            score += Math.floor(baseMergeScore * (1 + mergeChainCount * 0.5));
-                            triggerScorePulse(); 
-                            
-                            if (newLevel >= MAX_LEVEL) {
-                                spawnParticles(clampedX, clampedY, 60, '#e8d890', '#ffffff', 3);
-                                triggerShake(15);
-                                score += 4000;
-                                triggerScorePulse(); 
-                                showCelebration(); 
-                            }
-                            merged = true;
-                            
-                            playDropSound(); 
-                            break;
-                        }
-                    }
-                    fruits = fruits.filter(f => f.exists);
-                    iterations++;
-                } while (merged && iterations < maxIterations);
-                if (!merged && iterations === 0) mergeChainCount = Math.max(0, mergeChainCount - 1);
-            }
-
-            // 修改物理计算实现“不可交错，不可堆叠”
-            function resolveFruitCollisions(fruitsArray, applyVelocity) {
-                const collisionMargin = 0; 
-                for (let i = 0; i < fruitsArray.length; i++) {
-                    if (!fruitsArray[i].exists) continue;
-                    for (let j = i + 1; j < fruitsArray.length; j++) {
-                        if (!fruitsArray[j].exists) continue;
-                        const f1 = fruitsArray[i];
-                        const f2 = fruitsArray[j];
-                        let dx = f2.x - f1.x;
-                        let dy = f2.y - f1.y;
-                        let dist = Math.hypot(dx, dy);
-                        const minDist = f1.radius + f2.radius + collisionMargin;
-                        
-                        if (dist < minDist && dist > 0.0001) {
-                            
-                            // 【不可堆叠】：如果两者几乎完美垂直堆叠，施加细微的随机横向推力，强行让其滑落
-                            if (Math.abs(dx) < 1.5) {
-                                const nudge = (Math.random() > 0.5 ? 1 : -1) * 1.2;
-                                f1.x -= nudge; f2.x += nudge;
-                                // 重新计算偏差
-                                dx = f2.x - f1.x; dy = f2.y - f1.y;
-                                dist = Math.hypot(dx, dy);
-                            }
-
-                            const overlap = minDist - dist;
-                            const nx = dx / dist; const ny = dy / dist;
-                            const m1 = f1.radius * f1.radius; const m2 = f2.radius * f2.radius;
-                            const totalMass = m1 + m2;
-                            
-                            // 【不可交错】：绝对且彻底地进行位置修正重排，拒绝软体式的互相穿透
-                            const sep1 = overlap * (m2 / totalMass);
-                            const sep2 = overlap * (m1 / totalMass);
-                            f1.x -= nx * sep1; f1.y -= ny * sep1;
-                            f2.x += nx * sep2; f2.y += ny * sep2;
-                            
-                            if (applyVelocity) {
-                                const dvx = f1.vx - f2.vx; const dvy = f1.vy - f2.vy;
-                                const relVel = dvx * nx + dvy * ny;
-                                if (relVel > 0) {
-                                    const actualRestitution = relVel < 1.0 ? 0 : FRUIT_FRUIT_RESTITUTION;
-                                    const impulse = relVel * (1 + actualRestitution) / totalMass;
-                                    f1.vx -= impulse * m2 * nx; f1.vy -= impulse * m2 * ny;
-                                    f2.vx += impulse * m1 * nx; f2.vy += impulse * m1 * ny;
-                                }
-                            }
-                            f1.x = Math.max(f1.radius, Math.min(canvasWidth - f1.radius, f1.x));
-                            f1.y = Math.min(groundY - f1.radius, Math.max(-f1.radius * 2, f1.y));
-                            f2.x = Math.max(f2.radius, Math.min(canvasWidth - f2.radius, f2.x));
-                            f2.y = Math.min(groundY - f2.radius, Math.max(-f2.radius * 2, f2.y));
-                        }
-                    }
-                }
-            }
-
-            function updatePhysics() {
-                for (const fruit of fruits) {
-                    if (!fruit.exists) continue;
-                    fruit.age++; 
-                    fruit.vy += GRAVITY; fruit.x += fruit.vx; fruit.y += fruit.vy;
-                    fruit.vx *= 0.995; fruit.vy *= 0.995;
-                    
-                    if (fruit.x - fruit.radius < wallLeft) { fruit.x = wallLeft + fruit.radius; fruit.vx = Math.abs(fruit.vx) * WALL_RESTITUTION; }
-                    if (fruit.x + fruit.radius > wallRight) { fruit.x = wallRight - fruit.radius; fruit.vx = -Math.abs(fruit.vx) * WALL_RESTITUTION; }
-                    
-                    if (fruit.y + fruit.radius > groundY) {
-                        fruit.y = groundY - fruit.radius; 
-                        const actualRestitution = Math.abs(fruit.vy) < 1.5 ? 0 : GROUND_RESTITUTION;
-                        fruit.vy = -Math.abs(fruit.vy) * actualRestitution; 
-                        fruit.vx *= FRICTION;
-                        if (Math.abs(fruit.vy) < 0.6) fruit.vy = 0; 
-                        if (Math.abs(fruit.vx) < 0.2) fruit.vx = 0;
-                    }
-                    if (fruit.y - fruit.radius < -fruit.radius * 2) { fruit.y = -fruit.radius * 2 + fruit.radius; fruit.vy = Math.abs(fruit.vy) * 0.3; }
-                    if (fruit.mergeCooldown > 0) fruit.mergeCooldown--;
-                }
-                
-                resolveFruitCollisions(fruits, true);
-                
-                // 进行 4 次严格的位置反交错修正
-                for (let iter = 0; iter < 4; iter++) {
-                    resolveFruitCollisions(fruits, false);
-                    for (const fruit of fruits) {
-                        if (!fruit.exists) continue;
-                        if (fruit.x - fruit.radius < wallLeft) fruit.x = wallLeft + fruit.radius;
-                        if (fruit.x + fruit.radius > wallRight) fruit.x = wallRight - fruit.radius;
-                        if (fruit.y + fruit.radius > groundY) fruit.y = groundY - fruit.radius;
-                    }
-                }
-                
-                for (const fruit of fruits) {
-                    if (!fruit.exists) continue;
-                    if (Math.abs(fruit.vx) < 0.05) fruit.vx = 0;
-                    if (Math.abs(fruit.vy) < 0.05) fruit.vy = 0;
-                }
-            }
-
-            function checkGameOver() {
-                if (gameOver || isCelebrating) return; 
-                if (!hasFirstDrop) return;
-                
-                let isAnyAboveLine = false;
-                for (const fruit of fruits) {
-                    if (!fruit.exists) continue;
-                    if (fruit.age > 45 && fruit.y - fruit.radius <= dangerLineY) {
-                        isAnyAboveLine = true;
-                        break;
-                    }
-                }
-                
-                if (isAnyAboveLine) {
-                    dangerTimer++;
-                    if (dangerTimer >= DANGER_TIMER_LIMIT) {
-                        endGame('这里有太多的月巴！');
-                    }
+            function applyPageSubtitleOffset(pageEl, data) {
+                const subtitle = pageEl.querySelector('.page-subtitle');
+                if (!subtitle) return;
+                if (data && (data.subtitleOffsetX !== 0 || data.subtitleOffsetY !== 0)) {
+                    subtitle.style.transform = `translate(${data.subtitleOffsetX}px, ${data.subtitleOffsetY}px)`;
+                    subtitle.style.position = 'relative'; subtitle.style.zIndex = '3';
                 } else {
-                    if (dangerTimer > 0) {
-                        dangerTimer = Math.max(0, dangerTimer - 2); 
+                    subtitle.style.transform = ''; subtitle.style.position = ''; subtitle.style.zIndex = '';
+                }
+            }
+
+            function applyFontOverridesToPage(bodyEl) {
+                if (!bodyEl) return;
+                const fontSize = $fontSizeSlider.value + 'px';
+                const lineHeight = $lineHeightSlider.value;
+                const textColor = $textColorPicker.value;
+                const fontFamily = $fontFamilySelect.value;
+                bodyEl.style.fontSize = fontSize;
+                bodyEl.style.lineHeight = lineHeight;
+                bodyEl.style.color = textColor;
+                if (fontFamily && fontFamily !== 'inherit') {
+                    bodyEl.style.fontFamily = fontFamily;
+                } else {
+                    bodyEl.style.fontFamily = '';
+                }
+                bodyEl.style.overflow = 'hidden';
+            }
+
+            function highlightActivePage() {
+                $pagesContainer.querySelectorAll('.page').forEach(el => {
+                    const idx = parseInt(el.dataset.pageIndex);
+                    el.classList.toggle('active-page', idx === activePageIndex);
+                });
+            }
+
+            function setActivePage(index) {
+                if (index === activePageIndex) return;
+                syncPageDataFromDOM(activePageIndex);
+                activePageIndex = index;
+                highlightActivePage();
+                updatePageThumbs();
+                syncSidebarFromActivePage();
+                updateGlobalImageSelection();
+            }
+
+            function syncPageDataFromDOM(index) {
+                const data = getPageData(index);
+                if (!data) return;
+                const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${index}"]`);
+                if (!pageEl) return;
+                const titleEl = pageEl.querySelector('.page-title');
+                const subtitleEl = pageEl.querySelector('.page-subtitle');
+                const bodyEl = pageEl.querySelector('.page-body');
+                if (titleEl) data.title = titleEl.textContent || '';
+                if (subtitleEl) data.subtitle = subtitleEl.textContent || '';
+                if (bodyEl) data.body = bodyEl.textContent || '';
+                syncImagePositionsFromPage(index, pageEl);
+            }
+
+            function syncImagePositionsFromPage(index, pageEl) {
+                const data = getPageData(index);
+                if (!data) return;
+                pageEl.querySelectorAll('.page-image').forEach(el => {
+                    const id = parseInt(el.dataset.imageId);
+                    const imgData = data.images.find(img => img.id === id);
+                    if (imgData) {
+                        imgData.x = parseFloat(el.style.left) || 0;
+                        imgData.y = parseFloat(el.style.top) || 0;
+                        imgData.width = parseFloat(el.style.width) || imgData.width;
+                        imgData.height = parseFloat(el.style.height) || imgData.height;
+                        imgData.opacity = parseFloat(el.style.opacity) || imgData.opacity;
+                        const transform = el.style.transform;
+                        if (transform && transform.includes('rotate')) {
+                            const match = transform.match(/rotate\(([^)]+)deg\)/);
+                            if (match) imgData.rotation = parseFloat(match[1]) || 0;
+                        }
+                    }
+                });
+            }
+
+            function syncSidebarFromActivePage() {
+                const data = getActivePageData();
+                if (!data) return;
+                if (!isSyncingFromBody) {
+                    isSyncingFromInput = true;
+                    $titleInput.value = data.title || '';
+                    $subtitleInput.value = data.subtitle || '';
+                    $bodyInput.value = data.body || '';
+                    isSyncingFromInput = false;
+                }
+            }
+
+            // ======================== 分页系统 ========================
+
+            function schedulePaginateCheck(index) {
+                clearTimeout(paginateTimer);
+                pendingPaginateIndex = index;
+                paginateTimer = setTimeout(() => {
+                    if (pendingPaginateIndex === index) { performPaginateAt(index); }
+                }, 200);
+            }
+
+            function performPaginateAt(index) {
+                if (isAutoPaginating) return;
+                const data = getPageData(index);
+                if (!data || !data.body || data.body.trim().length === 0) return;
+                const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${index}"]`);
+                if (!pageEl) return;
+                const bodyEl = pageEl.querySelector('.page-body');
+                if (!bodyEl) return;
+                bodyEl.style.overflow = 'hidden';
+                if (bodyEl.scrollHeight <= bodyEl.clientHeight) return;
+
+                isAutoPaginating = true;
+                const fullText = collectFullTextFrom(index);
+                if (fullText.trim().length === 0) { isAutoPaginating = false; return; }
+
+                while (pagesData.length > index + 1) {
+                    if (pagesData[index + 1].isAutoPage) { pagesData.splice(index + 1, 1); }
+                    else { break; }
+                }
+
+                bodyEl.textContent = fullText;
+                void bodyEl.offsetHeight;
+
+                let low = 0, high = fullText.length, bestSplit = 0;
+                for (let iter = 0; iter < 35; iter++) {
+                    const mid = Math.floor((low + high) / 2);
+                    bodyEl.textContent = fullText.substring(0, mid);
+                    void bodyEl.offsetHeight;
+                    if (bodyEl.scrollHeight <= bodyEl.clientHeight) { bestSplit = mid; low = mid + 1; }
+                    else { high = mid - 1; }
+                    if (low > high) break;
+                }
+
+                let exactSplit = bestSplit;
+                const maxScan = Math.min(bestSplit + 300, fullText.length);
+                for (let i = bestSplit + 1; i <= maxScan; i++) {
+                    bodyEl.textContent = fullText.substring(0, i);
+                    void bodyEl.offsetHeight;
+                    if (bodyEl.scrollHeight <= bodyEl.clientHeight) { exactSplit = i; }
+                    else { break; }
+                }
+
+                let splitPoint = exactSplit;
+                const contextBefore = fullText.substring(Math.max(0, exactSplit - 30), exactSplit);
+                const punctPositions = [contextBefore.lastIndexOf('\n'), contextBefore.lastIndexOf('。'),
+                    contextBefore.lastIndexOf('！'), contextBefore.lastIndexOf('？'), contextBefore.lastIndexOf('；')
+                ].filter(p => p >= 0);
+                if (punctPositions.length > 0) {
+                    const bestPunct = Math.max(...punctPositions);
+                    const punctAbsolute = Math.max(0, exactSplit - 30) + bestPunct + 1;
+                    if (exactSplit - punctAbsolute < 60 && fullText.length - punctAbsolute > 30) {
+                        splitPoint = punctAbsolute;
                     }
                 }
-            }
 
-            function endGame(message) {
-                gameOver = true;
-                gameOverTitle.textContent = message;
-                gameOverScore.textContent = '得分：' + score;
-                
-                let isNewRecord = false;
-                if (score > highScore) { highScore = score; setHighScore(highScore); updateHighScoreDisplay(); isNewRecord = true; }
-                gameOverHighScore.textContent = '最高分：' + highScore;
-                if (isNewRecord) { gameOverHighScore.classList.add('new-record'); } else { gameOverHighScore.classList.remove('new-record'); }
-                
-                gameOverOverlay.classList.add('active');
-                hintTextOuter.style.opacity = '0';
-                triggerShake(6);
-                
-                canRestart = false;
-                setTimeout(() => { canRestart = true; }, 800);
-                
-                for (const fruit of fruits) {
-                    if (fruit.exists && fruit.y < dangerLineY + 100 * dpr) { spawnParticles(fruit.x, fruit.y, 10, '#c4b5e0', '#e8ddf8', 0.8); }
+                if (splitPoint < 10) splitPoint = Math.min(30, Math.floor(fullText.length / 2));
+                if (fullText.length - splitPoint < 8) {
+                    bodyEl.textContent = fullText;
+                    bodyEl.style.overflow = 'hidden';
+                    isAutoPaginating = false;
+                    return;
                 }
-            }
 
-            function drawFruit(ctx, fruit, alpha = 1) {
-                const { x, y, radius, imageUrl } = fruit; const r = radius;
-                ctx.save(); ctx.globalAlpha = alpha;
-                ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = r * 0.18; ctx.shadowOffsetX = r * 0.04; ctx.shadowOffsetY = r * 0.07;
-                const baseGrad = ctx.createRadialGradient(x - r * 0.2, y - r * 0.25, r * 0.05, x, y, r);
-                baseGrad.addColorStop(0, 'rgba(55,52,60,0.7)'); baseGrad.addColorStop(0.6, 'rgba(40,38,45,0.88)'); baseGrad.addColorStop(1, 'rgba(28,27,33,0.96)');
-                ctx.fillStyle = baseGrad; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-                ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-                const img = loadImage(imageUrl); const innerR = r * 0.93;
-                if (img && img.complete && img.naturalWidth > 0) {
-                    ctx.save(); ctx.beginPath(); ctx.arc(x, y, innerR, 0, Math.PI * 2); ctx.clip();
-                    const imgSize = innerR * 2; ctx.drawImage(img, x - imgSize / 2, y - imgSize / 2, imgSize, imgSize);
-                    ctx.restore();
+                const firstPart = fullText.substring(0, splitPoint).trim();
+                const remainingText = fullText.substring(splitPoint).trim();
+                if (remainingText.length === 0) {
+                    bodyEl.textContent = fullText;
+                    bodyEl.style.overflow = 'hidden';
+                    isAutoPaginating = false;
+                    return;
                 }
-                ctx.strokeStyle = 'rgba(170,160,188,0.88)'; ctx.lineWidth = r * 0.07; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
-                ctx.strokeStyle = 'rgba(190,182,206,0.6)'; ctx.lineWidth = r * 0.03; ctx.beginPath(); ctx.arc(x, y, innerR + r * 0.018, 0, Math.PI * 2); ctx.stroke();
-                const hlGrad = ctx.createRadialGradient(x - r * 0.28, y - r * 0.32, r * 0.02, x - r * 0.15, y - r * 0.2, r * 0.55);
-                hlGrad.addColorStop(0, 'rgba(255,255,255,0.4)'); hlGrad.addColorStop(0.5, 'rgba(255,255,255,0.1)'); hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = hlGrad; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
-            }
 
-            function drawBackground(ctx) {
-                const bgGrad = ctx.createLinearGradient(0, 0, 0, canvasHeight);
-                bgGrad.addColorStop(0, 'rgba(28,27,33,0.85)'); bgGrad.addColorStop(0.5, 'rgba(32,31,38,0.9)'); bgGrad.addColorStop(1, 'rgba(24,23,29,0.92)');
-                ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                ctx.fillStyle = 'rgba(190,180,210,0.012)'; const dotSpacing = 18 * dpr;
-                for (let dx = dotSpacing; dx < canvasWidth; dx += dotSpacing) {
-                    for (let dy = dotSpacing; dy < canvasHeight; dy += dotSpacing) {
-                        ctx.beginPath(); ctx.arc(dx, dy, 0.5 * dpr, 0, Math.PI * 2); ctx.fill();
+                data.body = firstPart;
+                bodyEl.textContent = firstPart;
+                bodyEl.style.overflow = 'hidden';
+
+                const continuationPage = {
+                    title: '', subtitle: '', body: remainingText,
+                    titleOffsetX: 0, titleOffsetY: 0, subtitleOffsetX: 0, subtitleOffsetY: 0,
+                    images: [], isAutoPage: true
+                };
+                pagesData.splice(index + 1, 0, continuationPage);
+
+                const savedActive = activePageIndex;
+                renderAllPages();
+                if (savedActive < pagesData.length) {
+                    activePageIndex = savedActive;
+                    highlightActivePage();
+                    syncSidebarFromActivePage();
+                }
+
+                const nextPageEl = $pagesContainer.querySelector(`.page[data-page-index="${index + 1}"]`);
+                if (nextPageEl) {
+                    const nextBody = nextPageEl.querySelector('.page-body');
+                    if (nextBody) {
+                        nextBody.style.overflow = 'hidden';
+                        if (nextBody.scrollHeight > nextBody.clientHeight) {
+                            requestAnimationFrame(() => { isAutoPaginating = false; performPaginateAt(index + 1); });
+                            return;
+                        }
                     }
                 }
+                isAutoPaginating = false;
             }
 
-            function drawDangerLine(ctx) {
-                const y = dangerLineY; ctx.strokeStyle = 'rgba(255,120,120,0.55)'; ctx.lineWidth = 2 * dpr; ctx.setLineDash([12 * dpr, 8 * dpr]);
-                ctx.lineDashOffset = -Date.now() / 1000 * 20 * dpr; ctx.beginPath(); ctx.moveTo(10 * dpr, y); ctx.lineTo(canvasWidth - 10 * dpr, y); ctx.stroke();
-                ctx.setLineDash([]); ctx.lineDashOffset = 0;
-                const fontSize = 11 * dpr; ctx.fillStyle = 'rgba(255,140,140,0.6)'; ctx.font = `bold ${fontSize}px sans-serif`; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-                ctx.fillText('⚠ 警戒线', canvasWidth - 14 * dpr, y - 4 * dpr);
-            }
-
-            function render() {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight); ctx.save(); if (shakeAmount > 0.01) ctx.translate(shakeX, shakeY);
-                drawBackground(ctx); drawDangerLine(ctx);
-                const sortedFruits = [...fruits].filter(f => f.exists).sort((a, b) => a.y - b.y);
-                for (const fruit of sortedFruits) { drawFruit(ctx, fruit, 1); }
-                if (previewFruit && !gameOver && !isCelebrating && releaseCooldown <= 0) {
-                    const previewAlpha = 0.7 + Math.sin(Date.now() / 400) * 0.15; drawFruit(ctx, previewFruit, previewAlpha);
-                    const px = previewFruit.x; const py = previewFruit.y + previewFruit.radius;
-                    ctx.strokeStyle = 'rgba(190,180,210,0.3)'; ctx.lineWidth = 1.2 * dpr; ctx.setLineDash([5 * dpr, 8 * dpr]);
-                    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + 28 * dpr); ctx.stroke(); ctx.setLineDash([]);
+            function collectFullTextFrom(index) {
+                let text = '';
+                for (let i = index; i < pagesData.length; i++) {
+                    const d = pagesData[i];
+                    if (i === index || d.isAutoPage) { text += d.body || ''; }
+                    else { break; }
                 }
-                drawParticles(ctx); ctx.restore();
-                const topGrad = ctx.createLinearGradient(0, 0, 0, dangerLineY); topGrad.addColorStop(0, 'rgba(20,20,24,0.6)'); topGrad.addColorStop(1, 'rgba(20,20,24,0)');
-                ctx.fillStyle = topGrad; ctx.fillRect(0, 0, canvasWidth, dangerLineY);
+                return text;
             }
 
-            let lastTime = 0; let accumulator = 0; const fixedDt = 1000 / 60;
-            function gameLoop(timestamp) {
-                if (!lastTime) lastTime = timestamp; let dt = timestamp - lastTime; lastTime = timestamp; if (dt > 100) dt = 100;
-                accumulator += dt; let updates = 0;
-                
-                while (accumulator >= fixedDt && updates < 5) {
-                    if (!gameOver) { updatePhysics(); tryMergeFruits(); checkGameOver(); if (releaseCooldown > 0) releaseCooldown--; }
-                    updateParticles(); updateShake(); accumulator -= fixedDt; updates++;
+            function repaginateAll() {
+                if (pagesData.length === 0) return;
+                let fullText = '';
+                for (let i = 0; i < pagesData.length; i++) {
+                    syncPageDataFromDOM(i);
+                    fullText += (pagesData[i].body || '') + '\n\n';
+                }
+                fullText = fullText.trim();
+                if (fullText.length === 0) { showToast('没有可排版的内容', 'error'); return; }
+
+                const firstData = pagesData[0];
+                firstData.body = fullText;
+                firstData.isAutoPage = false;
+                firstData.title = $titleInput.value || firstData.title;
+                firstData.subtitle = $subtitleInput.value || firstData.subtitle;
+                pagesData = [firstData];
+                activePageIndex = 0;
+                renderAllPages();
+                isAutoPaginating = false;
+                performPaginateAt(0);
+                setTimeout(() => zoomFit(), 50);
+                showToast('✅ 重新分页完成', 'success');
+            }
+
+            // ======================== 页面管理 ========================
+            function updatePageThumbs() {
+                $pageThumbList.innerHTML = '';
+                pagesData.forEach((data, index) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = 'page-thumb' + (index === activePageIndex ? ' active' : '') + (data.isAutoPage ? ' auto-page' : '');
+                    thumb.innerHTML = `<span class="thumb-num">${index + 1}</span><small>${data.isAutoPage ? '续页' : getPageSize().label}</small>`;
+                    thumb.addEventListener('click', () => {
+                        syncPageDataFromDOM(activePageIndex);
+                        setActivePage(index);
+                        const targetEl = $pagesContainer.querySelector(`.page[data-page-index="${index}"]`);
+                        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
+                    $pageThumbList.appendChild(thumb);
+                });
+                $deletePageBtn.disabled = pagesData.length <= 1;
+                const hasAutoPages = pagesData.some(d => d.isAutoPage);
+                $autoPageIndicator.style.display = hasAutoPages ? 'inline' : 'none';
+            }
+
+            function updatePageLabels() { $totalPagesLabel.textContent = pagesData.length; }
+
+            function addNewPage() {
+                syncPageDataFromDOM(activePageIndex);
+                const newIndex = pagesData.length;
+                pagesData.push({
+                    title: '新页面标题', subtitle: '', body: '在这里输入正文内容...',
+                    titleOffsetX: 0, titleOffsetY: 0, subtitleOffsetX: 0, subtitleOffsetY: 0,
+                    images: [], isAutoPage: false
+                });
+                activePageIndex = newIndex;
+                renderAllPages();
+                showToast('新页面已添加', 'success');
+            }
+
+            function deleteCurrentPage() {
+                if (pagesData.length <= 1) { showToast('至少保留一个页面', 'error'); return; }
+                if (getActivePageData() && getActivePageData().isAutoPage) { showToast('不能单独删除续页', 'error'); return; }
+                syncPageDataFromDOM(activePageIndex);
+                pagesData.splice(activePageIndex, 1);
+                if (activePageIndex >= pagesData.length) activePageIndex = pagesData.length - 1;
+                selectedImageId = null;
+                renderAllPages();
+                showToast('页面已删除', '');
+            }
+
+            function duplicatePage() {
+                syncPageDataFromDOM(activePageIndex);
+                const source = getActivePageData();
+                if (!source) return;
+                const newImages = source.images.map(img => ({ ...img, id: imageIdCounter++ }));
+                pagesData.splice(activePageIndex + 1, 0, {
+                    title: source.title + ' (副本)', subtitle: source.subtitle, body: source.body,
+                    titleOffsetX: 0, titleOffsetY: 0, subtitleOffsetX: 0, subtitleOffsetY: 0,
+                    images: newImages, isAutoPage: false
+                });
+                activePageIndex = activePageIndex + 1;
+                renderAllPages();
+                showToast('页面已复制', 'success');
+            }
+
+            // ======================== 图片管理 ========================
+            function deleteImageFromPage(id, pageIndex) {
+                const data = getPageData(pageIndex);
+                if (!data) return;
+                data.images = data.images.filter(img => img.id !== id);
+                if (selectedImageId === id) selectedImageId = null;
+                renderAllPages();
+                showToast('图片已删除', '');
+            }
+
+            function addImageToPage(src, isBackground = false) {
+                const data = getActivePageData();
+                if (!data) return;
+                const size = getPageSize();
+                const id = imageIdCounter++;
+                let imgW, imgH, imgX, imgY, opacity;
+                if (isBackground) {
+                    imgW = size.width; imgH = size.height; imgX = 0; imgY = 0; opacity = 0.3;
+                } else {
+                    imgW = 180; imgH = 135;
+                    imgX = (size.width - imgW) / 2; imgY = (size.height - imgH) / 2; opacity = 1;
+                }
+                data.images.push({ id, src, x: imgX, y: imgY, width: imgW, height: imgH, opacity, rotation: 0, isBackground });
+                selectedImageId = id;
+                renderAllPages();
+                showToast(isBackground ? '底图已添加' : '装饰图已添加', 'success');
+            }
+
+            // ======================== 缩放 ========================
+            function updateZoom() {
+                $pagesContainer.style.transform = `scale(${zoomLevel})`;
+                $zoomLabel.textContent = Math.round(zoomLevel * 100) + '%';
+            }
+            function zoomIn() { zoomLevel = Math.min(2, zoomLevel + 0.05); updateZoom(); }
+            function zoomOut() { zoomLevel = Math.max(0.25, zoomLevel - 0.05); updateZoom(); }
+            function zoomFit() {
+                const previewRect = $previewArea.getBoundingClientRect();
+                const size = getPageSize();
+                const total = pagesData.length;
+                const mobile = isMobile();
+                let contentW, contentH;
+                if (total <= 1 || mobile) {
+                    contentW = size.width;
+                    contentH = Math.max(size.height + 80, total * (size.height + 80));
+                } else {
+                    const pairs = Math.ceil(total / 2);
+                    const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--spread-gap') || 40);
+                    contentW = size.width * 2 + gap;
+                    contentH = pairs * (size.height + 48) + 80;
+                }
+                const scaleX = (previewRect.width - 60) / contentW;
+                const scaleY = (previewRect.height - 60) / contentH;
+                zoomLevel = Math.min(scaleX, scaleY, 1.2);
+                if (zoomLevel < 0.2) zoomLevel = 0.2;
+                updateZoom();
+            }
+
+            // ======================== 导出PNG（严格匹配预览） ========================
+
+            // 导出前确保字体已加载，并清理所有视觉干扰
+            async function preparePageForExport(pageEl) {
+                // 保存选中状态并清除
+                const prevSelected = selectedImageId;
+                selectedImageId = null;
+                updateGlobalImageSelection();
+
+                // 移除激活高亮
+                pageEl.classList.remove('active-page');
+
+                // 移除拖拽状态
+                pageEl.querySelectorAll('.page-title.dragging, .page-subtitle.dragging').forEach(el => el.classList.remove('dragging'));
+
+                // 确保字体已加载
+                await ensureFontsLoaded();
+
+                return prevSelected;
+            }
+
+            function restorePageAfterExport(pageEl, prevSelected, wasActive) {
+                if (wasActive) pageEl.classList.add('active-page');
+                selectedImageId = prevSelected;
+                updateGlobalImageSelection();
+            }
+
+            async function exportSinglePage(index) {
+                const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${index}"]`);
+                if (!pageEl) return null;
+
+                const wasActive = pageEl.classList.contains('active-page');
+                const prevSelected = await preparePageForExport(pageEl);
+
+                try {
+                    // 等待一帧以确保DOM更新
+                    await new Promise(r => requestAnimationFrame(r));
+
+                    const canvas = await html2canvas(pageEl, {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        // 关键：确保字体渲染一致
+                        windowWidth: pageEl.scrollWidth,
+                        windowHeight: pageEl.scrollHeight,
+                        onclone: (clonedDoc) => {
+                            const clonedPage = clonedDoc.querySelector(`.page[data-page-index="${index}"]`);
+                            if (clonedPage) {
+                                clonedPage.classList.remove('active-page');
+                                clonedPage.querySelectorAll('.page-title.dragging, .page-subtitle.dragging').forEach(el => el.classList.remove('dragging'));
+                                // 确保克隆中所有图片可见
+                                clonedPage.querySelectorAll('.page-image').forEach(el => {
+                                    el.classList.remove('selected');
+                                });
+                            }
+                        }
+                    });
+                    return canvas;
+                } catch (err) {
+                    console.error('Export error for page', index, err);
+                    return null;
+                } finally {
+                    restorePageAfterExport(pageEl, prevSelected, wasActive);
+                }
+            }
+
+            async function exportPNG() {
+                if (isExporting) return;
+                syncPageDataFromDOM(activePageIndex);
+                const canvas = await exportSinglePage(activePageIndex);
+                if (!canvas) { showToast('导出失败，请重试', 'error'); return; }
+
+                const link = document.createElement('a');
+                link.download = `排版导出_第${activePageIndex + 1}页_${currentStyle}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('✅ PNG导出成功！', 'success');
+            }
+
+            async function exportAllPages() {
+                if (isExporting) return;
+                if (pagesData.length === 0) { showToast('没有页面可导出', 'error'); return; }
+
+                isExporting = true;
+                $progressOverlay.classList.add('show');
+                $progressText.textContent = '正在导出全部页面...';
+                $progressBarFill.style.width = '0%';
+
+                // 先同步所有DOM数据
+                for (let i = 0; i < pagesData.length; i++) { syncPageDataFromDOM(i); }
+
+                // 预加载字体
+                await ensureFontsLoaded();
+
+                let successCount = 0;
+                const total = pagesData.length;
+
+                for (let i = 0; i < total; i++) {
+                    $progressText.textContent = `正在导出第 ${i + 1}/${total} 页...`;
+                    $progressBarFill.style.width = ((i / total) * 100) + '%';
+
+                    const canvas = await exportSinglePage(i);
+                    if (canvas) {
+                        const link = document.createElement('a');
+                        link.download = `排版导出_第${i + 1}页_${currentStyle}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        successCount++;
+                    }
+
+                    await new Promise(r => setTimeout(r, 150));
                 }
 
-                if (displayedScore < score) {
-                    let diff = score - displayedScore;
-                    let increment = Math.ceil(diff * 0.15); 
-                    if (increment < 1 && diff > 0) increment = 1;
-                    displayedScore += increment;
-                    scoreDisplay.textContent = displayedScore;
+                $progressBarFill.style.width = '100%';
+                $progressText.textContent = `导出完成！成功 ${successCount}/${total} 页`;
+
+                setTimeout(() => {
+                    $progressOverlay.classList.remove('show');
+                    isExporting = false;
+                }, 1200);
+
+                showToast(`📦 导出完成：${successCount}/${total} 页`, 'success');
+            }
+
+            // ======================== 样式 & 字体应用 ========================
+            function applyGlobalStyle(style) {
+                currentStyle = style;
+                document.querySelectorAll('.style-preset-card').forEach(card => {
+                    card.classList.toggle('active', card.dataset.style === style);
+                });
+                renderAllPages();
+            }
+
+            function applyFontOverridesGlobal() {
+                $fontSizeVal.textContent = $fontSizeSlider.value;
+                $lineHeightVal.textContent = $lineHeightSlider.value;
+                $pagesContainer.querySelectorAll('.page-body').forEach(body => { applyFontOverridesToPage(body); });
+            }
+
+            function syncInputToActivePage() {
+                const data = getActivePageData();
+                if (!data) return;
+                if (isSyncingFromInput) return;
+                isSyncingFromBody = true;
+                data.title = $titleInput.value;
+                data.subtitle = $subtitleInput.value;
+                data.body = $bodyInput.value;
+                const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"]`);
+                if (pageEl) {
+                    const titleEl = pageEl.querySelector('.page-title');
+                    const subtitleEl = pageEl.querySelector('.page-subtitle');
+                    const bodyEl = pageEl.querySelector('.page-body');
+                    if (titleEl) titleEl.textContent = data.title;
+                    if (subtitleEl) subtitleEl.textContent = data.subtitle;
+                    if (bodyEl) {
+                        bodyEl.textContent = data.body;
+                        bodyEl.style.overflow = 'hidden';
+                        if (bodyEl.scrollHeight > bodyEl.clientHeight) {
+                            setTimeout(() => performPaginateAt(activePageIndex), 100);
+                        }
+                    }
+                }
+                isSyncingFromBody = false;
+            }
+
+            // ======================== 全局鼠标/键盘事件 ========================
+            document.addEventListener('mousemove', (e) => {
+                if (isFreeResizing && selectedImageId !== null) {
+                    const container = document.querySelector(`.page-image[data-image-id="${selectedImageId}"]`);
+                    if (!container) { isFreeResizing = false; return; }
+                    const pageIdx = parseInt(container.dataset.pageIndex);
+                    const data = getPageData(pageIdx);
+                    if (!data) { isFreeResizing = false; return; }
+                    const imgData = data.images.find(img => img.id === selectedImageId);
+                    if (!imgData) { isFreeResizing = false; return; }
+                    performFreeResize(e, freeResizeHandle, imgData, container);
                 }
 
-                if (!hasFirstDrop && !gameOver) { hintOpacity = 0.6 + Math.sin(timestamp / 1800) * 0.3; hintTextOuter.style.opacity = hintOpacity; }
-                else if (hasFirstDrop && hintOpacity > 0) { hintOpacity = Math.max(0, hintOpacity - 0.015); hintTextOuter.style.opacity = hintOpacity; }
-                render(); requestAnimationFrame(gameLoop);
-            }
+                if (isDraggingImage && selectedImageId !== null) {
+                    const container = document.querySelector(`.page-image[data-image-id="${selectedImageId}"]`);
+                    if (!container) { isDraggingImage = false; return; }
+                    const pageIdx = parseInt(container.dataset.pageIndex);
+                    const data = getPageData(pageIdx);
+                    if (!data) { isDraggingImage = false; return; }
+                    const imgData = data.images.find(img => img.id === selectedImageId);
+                    if (!imgData || imgData.isBackground) { isDraggingImage = false; return; }
+                    const dx = e.clientX - dragStartX;
+                    const dy = e.clientY - dragStartY;
+                    const newX = Math.max(-30, dragOrigX + dx);
+                    const newY = Math.max(-30, dragOrigY + dy);
+                    imgData.x = newX; imgData.y = newY;
+                    container.style.left = newX + 'px';
+                    container.style.top = newY + 'px';
+                }
 
-            function getEventPos(e) {
-                const rect = canvas.getBoundingClientRect(); const scaleX = canvasWidth / rect.width; const scaleY = canvasHeight / rect.height;
-                let clientX, clientY;
-                if (e.touches) {
-                    if (e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
-                    else if (e.changedTouches && e.changedTouches.length > 0) { clientX = e.changedTouches[0].clientX; clientY = e.changedTouches[0].clientY; }
-                    else { return null; }
-                } else { clientX = e.clientX; clientY = e.clientY; }
-                return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-            }
+                if (isRotating && selectedImageId !== null) {
+                    const container = document.querySelector(`.page-image[data-image-id="${selectedImageId}"]`);
+                    if (!container) { isRotating = false; return; }
+                    const pageIdx = parseInt(container.dataset.pageIndex);
+                    const data = getPageData(pageIdx);
+                    if (!data) { isRotating = false; return; }
+                    const imgData = data.images.find(img => img.id === selectedImageId);
+                    if (!imgData) { isRotating = false; return; }
+                    const rect = container.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+                    const startAngle = Math.atan2(dragStartY - cy, dragStartX - cx);
+                    const curAngle = Math.atan2(e.clientY - cy, e.clientX - cx);
+                    let delta = (curAngle - startAngle) * (180 / Math.PI);
+                    let newRot = (dragOrigRotation + delta) % 360;
+                    if (newRot > 180) newRot -= 360;
+                    if (newRot < -180) newRot += 360;
+                    newRot = Math.round(newRot);
+                    imgData.rotation = newRot;
+                    container.style.transform = `rotate(${newRot}deg)`;
+                }
 
-            function updatePreviewPosition(pos) { if (!previewFruit || gameOver || isCelebrating) return; const r = previewFruit.radius; previewFruit.x = Math.max(r, Math.min(canvasWidth - r, pos.x)); }
-            function handlePointerDown(e) { if (gameOver || isCelebrating) return; e.preventDefault(); const pos = getEventPos(e); if (pos) { updatePreviewPosition(pos); releaseFruit(); } }
-            function handlePointerMove(e) { if (gameOver || isCelebrating) return; e.preventDefault(); const pos = getEventPos(e); if (pos) updatePreviewPosition(pos); }
-            function handlePointerUp(e) { if (gameOver || isCelebrating) return; e.preventDefault(); if (e.changedTouches && e.changedTouches.length > 0) releaseFruit(); }
+                if (isDraggingTitle) {
+                    const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+                    const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"]`);
+                    if (!pageEl) return;
+                    const titleEl = pageEl.querySelector('.page-title');
+                    if (!titleEl) return;
+                    const newX = dragOrigTitleX + dx, newY = dragOrigTitleY + dy;
+                    titleEl.style.transform = `translate(${newX}px, ${newY}px)`;
+                    titleEl.style.position = 'relative'; titleEl.style.zIndex = '3';
+                    const data = getActivePageData();
+                    if (data) { data.titleOffsetX = newX; data.titleOffsetY = newY; }
+                }
 
-            celebrateOverlay.addEventListener('click', (e) => { e.stopPropagation(); hideCelebration(); });
-            celebrateOverlay.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); hideCelebration(); }, { passive: false });
-
-            restartBtn.addEventListener('click', (e) => { e.stopPropagation(); if(canRestart) initGame(); });
-            restartBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); if(canRestart) initGame(); });
-            gameOverOverlay.addEventListener('click', (e) => { if (e.target === gameOverOverlay && canRestart) initGame(); });
-
-            canvas.addEventListener('mousedown', handlePointerDown);
-            canvas.addEventListener('mousemove', handlePointerMove);
-            canvas.addEventListener('click', (e) => { if (gameOver || isCelebrating) return; if (!('ontouchstart' in window)) releaseFruit(); });
-            canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
-            canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
-            canvas.addEventListener('touchend', handlePointerUp, { passive: false });
-            window.addEventListener('resize', () => {
-                resizeCanvas();
-                for (const fruit of fruits) { if (fruit.exists) { fruit.radius = FRUIT_DATA[fruit.level].radius * dpr; fruit.x = Math.max(fruit.radius, Math.min(canvasWidth - fruit.radius, fruit.x)); fruit.y = Math.min(groundY - fruit.radius, fruit.y); } }
+                if (isDraggingSubtitle) {
+                    const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+                    const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"]`);
+                    if (!pageEl) return;
+                    const subEl = pageEl.querySelector('.page-subtitle');
+                    if (!subEl) return;
+                    const newX = dragOrigSubtitleX + dx, newY = dragOrigSubtitleY + dy;
+                    subEl.style.transform = `translate(${newX}px, ${newY}px)`;
+                    subEl.style.position = 'relative'; subEl.style.zIndex = '3';
+                    const data = getActivePageData();
+                    if (data) { data.subtitleOffsetX = newX; data.subtitleOffsetY = newY; }
+                }
             });
-            
-            function startGame() { 
-                dropSound.play().catch(e => {}); 
-                preloadAllImages(); 
-                highScore = getHighScore(); 
-                updateHighScoreDisplay(); 
-                resizeCanvas(); 
-                initGame(); 
-                lastTime = performance.now(); 
-                requestAnimationFrame(gameLoop); 
+
+            document.addEventListener('mouseup', () => {
+                if (isFreeResizing || isDraggingImage || isRotating) {
+                    if (selectedImageId !== null) {
+                        const container = document.querySelector(`.page-image[data-image-id="${selectedImageId}"]`);
+                        if (container) {
+                            const pageIdx = parseInt(container.dataset.pageIndex);
+                            syncImagePositionsFromPage(pageIdx, container.closest('.page'));
+                        }
+                    }
+                }
+                isDraggingImage = false; isResizing = false; isRotating = false; isFreeResizing = false;
+                if (isDraggingTitle) {
+                    isDraggingTitle = false;
+                    const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"]`);
+                    if (pageEl) { const t = pageEl.querySelector('.page-title'); if (t) t.classList.remove('dragging'); }
+                }
+                if (isDraggingSubtitle) {
+                    isDraggingSubtitle = false;
+                    const pageEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"]`);
+                    if (pageEl) { const s = pageEl.querySelector('.page-subtitle'); if (s) s.classList.remove('dragging'); }
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                const tag = e.target.tagName;
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+                    if (e.key === 'Delete' && selectedImageId !== null && document.activeElement === document.body) {
+                        e.preventDefault();
+                        const container = document.querySelector(`.page-image[data-image-id="${selectedImageId}"]`);
+                        if (container) {
+                            const pageIdx = parseInt(container.dataset.pageIndex);
+                            deleteImageFromPage(selectedImageId, pageIdx);
+                        }
+                    }
+                    return;
+                }
+                if ((e.key === 'Delete' || e.key === 'Backspace') && selectedImageId !== null) {
+                    if (!e.target.closest('.page-body') && !e.target.closest('input') && !e.target.closest('textarea')) {
+                        e.preventDefault();
+                        const container = document.querySelector(`.page-image[data-image-id="${selectedImageId}"]`);
+                        if (container) {
+                            const pageIdx = parseInt(container.dataset.pageIndex);
+                            deleteImageFromPage(selectedImageId, pageIdx);
+                        }
+                    }
+                }
+                if (e.ctrlKey && e.key === 's') { e.preventDefault(); exportPNG(); }
+            });
+
+            // ======================== 事件绑定 ========================
+            $pageSizeSelect.addEventListener('change', () => {
+                syncPageDataFromDOM(activePageIndex);
+                const size = getPageSize();
+                pagesData.forEach(pageData => {
+                    pageData.images.forEach(img => {
+                        if (img.isBackground) { img.width = size.width; img.height = size.height; img.x = 0; img.y = 0; }
+                    });
+                });
+                renderAllPages();
+                setTimeout(() => zoomFit(), 100);
+            });
+
+            // 主题选择
+            $themeSelector.addEventListener('click', (e) => {
+                const card = e.target.closest('.theme-card');
+                if (!card) return;
+                applyTheme(card.dataset.theme);
+                showToast('主题已切换：' + card.textContent.trim(), 'success');
+            });
+
+            document.getElementById('stylePresets').addEventListener('click', (e) => {
+                const card = e.target.closest('.style-preset-card');
+                if (!card) return;
+                applyGlobalStyle(card.dataset.style);
+            });
+
+            $titleInput.addEventListener('input', syncInputToActivePage);
+            $subtitleInput.addEventListener('input', syncInputToActivePage);
+            $bodyInput.addEventListener('input', syncInputToActivePage);
+
+            $fontSizeSlider.addEventListener('input', () => {
+                $fontSizeVal.textContent = $fontSizeSlider.value;
+                applyFontOverridesGlobal();
+                setTimeout(() => {
+                    const bodyEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"] .page-body`);
+                    if (bodyEl && bodyEl.scrollHeight > bodyEl.clientHeight) { performPaginateAt(activePageIndex); }
+                }, 200);
+            });
+            $lineHeightSlider.addEventListener('input', () => {
+                $lineHeightVal.textContent = $lineHeightSlider.value;
+                applyFontOverridesGlobal();
+                setTimeout(() => {
+                    const bodyEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"] .page-body`);
+                    if (bodyEl && bodyEl.scrollHeight > bodyEl.clientHeight) { performPaginateAt(activePageIndex); }
+                }, 200);
+            });
+            $textColorPicker.addEventListener('input', applyFontOverridesGlobal);
+            $fontFamilySelect.addEventListener('change', () => {
+                applyFontOverridesGlobal();
+                setTimeout(() => {
+                    const bodyEl = $pagesContainer.querySelector(`.page[data-page-index="${activePageIndex}"] .page-body`);
+                    if (bodyEl && bodyEl.scrollHeight > bodyEl.clientHeight) { performPaginateAt(activePageIndex); }
+                }, 200);
+            });
+
+            document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('imageFileInput').click());
+            document.getElementById('imageFileInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => { addImageToPage(ev.target.result, false); e.target.value = ''; };
+                reader.readAsDataURL(file);
+            });
+            document.getElementById('uploadBgBtn').addEventListener('click', () => document.getElementById('bgFileInput').click());
+            document.getElementById('bgFileInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => { addImageToPage(ev.target.result, true); e.target.value = ''; };
+                reader.readAsDataURL(file);
+            });
+
+            document.getElementById('addPageBtn').addEventListener('click', addNewPage);
+            document.getElementById('deletePageBtn').addEventListener('click', deleteCurrentPage);
+            document.getElementById('duplicatePageBtn').addEventListener('click', duplicatePage);
+            document.getElementById('repaginateBtn').addEventListener('click', repaginateAll);
+
+            document.getElementById('exportBtn').addEventListener('click', exportPNG);
+            document.getElementById('exportAllBtn').addEventListener('click', exportAllPages);
+
+            document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+            document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+            document.getElementById('zoomFitBtn').addEventListener('click', zoomFit);
+
+            $previewArea.addEventListener('dblclick', (e) => {
+                if (e.target === $previewArea || e.target === $pagesContainer) zoomFit();
+            });
+            $previewArea.addEventListener('wheel', (e) => {
+                if (e.ctrlKey) { e.preventDefault(); if (e.deltaY < 0) zoomIn(); else zoomOut(); }
+            }, { passive: false });
+
+            window.addEventListener('resize', () => {
+                const savedActive = activePageIndex;
+                renderAllPages();
+                if (savedActive < pagesData.length) {
+                    activePageIndex = savedActive;
+                    highlightActivePage();
+                    syncSidebarFromActivePage();
+                }
+                setTimeout(() => zoomFit(), 100);
+            });
+
+            // ======================== 初始化 ========================
+            async function init() {
+                $pageSizeSelect.value = 'a5';
+                currentStyle = 'modern';
+                document.querySelectorAll('.style-preset-card').forEach(card => {
+                    card.classList.toggle('active', card.dataset.style === 'modern');
+                });
+
+                $fontSizeSlider.value = '12';
+                $lineHeightSlider.value = '1.5';
+                $fontSizeVal.textContent = '12';
+                $lineHeightVal.textContent = '1.5';
+
+                // 默认主题
+                applyTheme('default');
+
+                renderAllPages();
+                updatePageThumbs();
+                setTimeout(() => zoomFit(), 80);
+                applyFontOverridesGlobal();
+
+                // 预加载字体
+                await ensureFontsLoaded();
+
+                setTimeout(() => { performPaginateAt(0); }, 300);
+
+                console.log('✅ 文章排版工具 v5.3 — 精准导出 + 全局主题');
+                console.log('   📸 导出前确保字体加载 + 清理视觉干扰，导出与预览100%一致');
+                console.log('   🎨 新增3种全局主题：灰白色 · 浅绿护眼 · 深色夜间');
+                console.log('   🖼️ 图片直接在预览区编辑：8向自由缩放/变形、旋转、透明度');
+                console.log('   📍 标题/副标题位置按页独立存储');
+                console.log('   ⚫ 科技先锋 黑白配色');
             }
-            
-            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startGame); else startGame();
+
+            init();
         })();
     </script>
 </body>
