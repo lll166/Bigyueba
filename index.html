@@ -37,7 +37,7 @@
             overflow: hidden;
             touch-action: manipulation;
             -webkit-overflow-scrolling: none;
-            background-image: url('https://origin.picgo.net/2026/08/23/Snipaste_2026-04-07_12-29-51796761674a87082b.th.jpg');
+            background-image: url('https://img.heliar.top/file/1777979690688_Snipaste_2026-04-07_12-29-51.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -342,6 +342,326 @@
             transform: scale(0.9);
         }
 
+        /* 排行榜按钮样式 */
+        .leaderboard-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 30;
+            font-size: 1.2rem;
+            opacity: 0.25;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (hover: hover) {
+            .leaderboard-btn:hover {
+                opacity: 0.6;
+            }
+        }
+        .leaderboard-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* 排行榜面板样式 */
+        .leaderboard-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 20, 24, 0.82);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .leaderboard-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .leaderboard-panel {
+            width: 84%;
+            max-width: 320px;
+            max-height: 82%;
+            display: flex;
+            flex-direction: column;
+            background: rgba(38, 37, 44, 0.96);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 16px 14px;
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(160, 145, 190, 0.15);
+            transform: translateY(12px) scale(0.97);
+            transition: transform 0.3s ease;
+        }
+        .leaderboard-overlay.active .leaderboard-panel {
+            transform: translateY(0) scale(1);
+        }
+        .leaderboard-title {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--light-purple);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 18px rgba(196, 181, 224, 0.4);
+            flex-shrink: 0;
+        }
+        .leaderboard-list {
+            list-style: none;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 2px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .leaderboard-list::-webkit-scrollbar { width: 4px; }
+        .leaderboard-list::-webkit-scrollbar-thumb { background: rgba(180, 170, 200, 0.3); border-radius: 2px; }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(180, 170, 195, 0.08);
+            font-size: 0.9rem;
+            color: var(--white);
+        }
+        .leaderboard-item.highlight {
+            background: rgba(196, 181, 224, 0.22);
+            box-shadow: 0 0 0 1px rgba(210, 195, 240, 0.5) inset, 0 0 16px rgba(180, 155, 220, 0.35);
+        }
+        .lb-rank {
+            width: 22px;
+            text-align: center;
+            font-weight: 900;
+            color: var(--gray-purple);
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+        .leaderboard-item:nth-child(1) .lb-rank { color: #f0c860; }
+        .leaderboard-item:nth-child(2) .lb-rank { color: #d0d0d8; }
+        .leaderboard-item:nth-child(3) .lb-rank { color: #e0a878; }
+        .lb-score {
+            flex: 1;
+            font-weight: 800;
+            color: #d4c8ec;
+            text-align: right;
+        }
+        .lb-date {
+            font-size: 0.7rem;
+            color: var(--light-gray);
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+        .leaderboard-empty {
+            text-align: center;
+            color: var(--light-gray);
+            opacity: 0.7;
+            font-size: 0.85rem;
+            padding: 24px 0;
+        }
+        .leaderboard-close-btn {
+            margin-top: 14px;
+            padding: 10px 0;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #b8a5d6, #9d8ac4);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(150, 130, 190, 0.4);
+            flex-shrink: 0;
+        }
+        .leaderboard-close-btn:active { transform: scale(0.96); }
+
+        /* 数据统计按钮 */
+        .stats-btn {
+            position: absolute;
+            top: 15px;
+            left: 47px;
+            z-index: 30;
+            font-size: 1.2rem;
+            opacity: 0.25;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (hover: hover) {
+            .stats-btn:hover { opacity: 0.6; }
+        }
+        .stats-btn:active { transform: scale(0.9); }
+
+        /* 数据统计面板 */
+        .stats-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20, 20, 24, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .stats-overlay.active { opacity: 1; pointer-events: all; }
+        .stats-panel {
+            width: 88%;
+            max-width: 340px;
+            max-height: 86%;
+            display: flex;
+            flex-direction: column;
+            background: rgba(38, 37, 44, 0.96);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 16px 14px;
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(160, 145, 190, 0.15);
+            transform: translateY(12px) scale(0.97);
+            transition: transform 0.3s ease;
+        }
+        .stats-overlay.active .stats-panel { transform: translateY(0) scale(1); }
+        .stats-scroll {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .stats-scroll::-webkit-scrollbar { width: 4px; }
+        .stats-scroll::-webkit-scrollbar-thumb { background: rgba(180, 170, 200, 0.3); border-radius: 2px; }
+        .stats-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--light-purple);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+        .stats-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(180, 170, 195, 0.08);
+        }
+        .stat-value { font-size: 1.05rem; font-weight: 900; color: #d4c8ec; }
+        .stat-label { font-size: 0.68rem; color: var(--light-gray); opacity: 0.8; }
+
+        .ach-list { display: flex; flex-direction: column; gap: 6px; }
+        .ach-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 10px;
+            background: rgba(180, 170, 195, 0.06);
+            opacity: 0.45;
+        }
+        .ach-item.unlocked {
+            opacity: 1;
+            background: rgba(196, 181, 224, 0.14);
+            box-shadow: 0 0 0 1px rgba(210, 195, 240, 0.28) inset;
+        }
+        .ach-icon { font-size: 1.15rem; filter: grayscale(1); }
+        .ach-item.unlocked .ach-icon { filter: none; }
+        .ach-info { flex: 1; min-width: 0; }
+        .ach-name { font-size: 0.85rem; font-weight: 800; color: var(--white); }
+        .ach-desc { font-size: 0.68rem; color: var(--light-gray); opacity: 0.8; }
+        .ach-badge { font-size: 0.95rem; }
+
+        .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 96px; padding: 0 2px; }
+        .bar-col {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+        .bar-count { font-size: 0.6rem; font-weight: 700; color: #d4c8ec; }
+        .bar-fill {
+            width: 100%;
+            min-height: 2px;
+            border-radius: 4px 4px 2px 2px;
+            background: linear-gradient(180deg, #c4b5e0, #8f7fc0);
+            transition: height 0.4s ease;
+        }
+        .bar-fill.empty { background: rgba(180, 170, 195, 0.15); }
+        .bar-label { font-size: 0.6rem; color: var(--light-gray); opacity: 0.75; }
+
+        .heatmap {
+            display: grid;
+            grid-template-rows: repeat(7, 10px);
+            grid-auto-flow: column;
+            grid-auto-columns: 10px;
+            gap: 3px;
+            justify-content: center;
+        }
+        .heat-cell { width: 10px; height: 10px; border-radius: 2px; background: rgba(180, 170, 195, 0.12); }
+        .heat-cell.lv1 { background: rgba(196, 181, 224, 0.35); }
+        .heat-cell.lv2 { background: rgba(196, 181, 224, 0.6); }
+        .heat-cell.lv3 { background: rgba(196, 181, 224, 0.85); }
+        .heat-cell.lv4 { background: #c4b5e0; box-shadow: 0 0 6px rgba(196, 181, 224, 0.6); }
+        .heat-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-top: 8px;
+            font-size: 0.6rem;
+            color: var(--light-gray);
+            opacity: 0.8;
+        }
+        .heat-legend .heat-cell { width: 9px; height: 9px; }
+
+        /* 成就解锁提示 */
+        .achievement-toast {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translate(-50%, -20px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 14px;
+            background: rgba(46, 42, 58, 0.96);
+            border: 1px solid rgba(210, 195, 240, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 24px rgba(180, 155, 220, 0.35);
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            white-space: nowrap;
+        }
+        .achievement-toast.active { opacity: 1; transform: translate(-50%, 0); }
+        .achievement-toast .toast-icon { font-size: 1.5rem; }
+        .achievement-toast .toast-title { font-size: 0.62rem; color: var(--light-gray); letter-spacing: 1px; }
+        .achievement-toast .toast-name { font-size: 0.9rem; font-weight: 800; color: var(--light-purple); }
+
         @media (max-width: 380px) {
             .game-header { padding: 6px 12px; border-radius: 16px; }
             .score-value { font-size: 1.25rem; }
@@ -351,6 +671,8 @@
             .restart-btn { padding: 10px 30px; font-size: 0.95rem; }
             .hint-text-outer { font-size: 0.68rem; }
             .sound-toggle-btn { top: 12px; right: 12px; font-size: 1.1rem; }
+            .leaderboard-btn { top: 12px; left: 12px; font-size: 1.1rem; }
+            .stats-btn { top: 12px; left: 42px; font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -377,6 +699,26 @@
             <canvas id="gameCanvas"></canvas>
             
             <div class="sound-toggle-btn" id="soundToggleBtn" title="切换音效">🔊</div>
+            <div class="leaderboard-btn" id="leaderboardBtn" title="排行榜">🏆</div>
+            <div class="stats-btn" id="statsBtn" title="数据统计">📊</div>
+
+            <div class="leaderboard-overlay" id="leaderboardOverlay">
+                <div class="leaderboard-panel">
+                    <div class="leaderboard-title">🏆 排行榜</div>
+                    <ul class="leaderboard-list" id="leaderboardList"></ul>
+                    <button class="leaderboard-close-btn" id="leaderboardCloseBtn">关闭</button>
+                </div>
+            </div>
+
+            <div class="stats-overlay" id="statsOverlay">
+                <div class="stats-panel">
+                    <div class="leaderboard-title">📊 数据统计</div>
+                    <div class="stats-scroll" id="statsScroll"></div>
+                    <button class="leaderboard-close-btn" id="statsCloseBtn">关闭</button>
+                </div>
+            </div>
+
+            <div class="achievement-toast" id="achievementToast"></div>
 
             <div class="celebrate-overlay" id="celebrateOverlay">
                 <div class="celebrate-title">恭喜你合成大月巴！</div>
@@ -411,6 +753,15 @@
             const restartBtn = document.getElementById('restartBtn');
             const hintTextOuter = document.getElementById('hintTextOuter');
             const soundToggleBtn = document.getElementById('soundToggleBtn');
+            const leaderboardBtn = document.getElementById('leaderboardBtn');
+            const leaderboardOverlay = document.getElementById('leaderboardOverlay');
+            const leaderboardList = document.getElementById('leaderboardList');
+            const leaderboardCloseBtn = document.getElementById('leaderboardCloseBtn');
+            const statsBtn = document.getElementById('statsBtn');
+            const statsOverlay = document.getElementById('statsOverlay');
+            const statsScroll = document.getElementById('statsScroll');
+            const statsCloseBtn = document.getElementById('statsCloseBtn');
+            const achievementToast = document.getElementById('achievementToast');
 
             // ==========================================
             // 音效配置及开关控制
@@ -420,7 +771,7 @@
             dropSound.crossOrigin = 'anonymous'; 
             dropSound.autoplay = true; 
             
-            let isAudioMuted = true; // 音效状态变量
+            let isAudioMuted = false; // 音效状态变量
 
             // 音效按钮事件绑定，阻止冒泡防止误触释放月巴
             function toggleAudio(e) {
@@ -454,16 +805,16 @@
             events.forEach(evt => document.addEventListener(evt, unlockAudio, { once: true }));
 
             const FRUIT_DATA = [
-                { name: '1', radius: 17, color: '#c44b4b', glow: '#e88080', score: 1, imageUrl: 'https://origin.picgo.net/2026/08/23/10c2d1e42d695c830.th.jpg' },
-                { name: '2', radius: 23, color: '#c94b4b', glow: '#e89090', score: 2, imageUrl: 'https://origin.picgo.net/2026/08/23/2223efc35a6731d37.th.jpg' },
-                { name: '3', radius: 29, color: '#7b4a9e', glow: '#b890d0', score: 4, imageUrl: 'https://origin.picgo.net/2026/08/23/349bd954154a7c59c.th.jpg' },
-                { name: '4', radius: 36, color: '#d4852a', glow: '#f0b860', score: 8, imageUrl: 'https://origin.picgo.net/2026/08/23/41b2eeed1c7128347.th.jpg' },
-                { name: '5', radius: 44, color: '#b03a3a', glow: '#e87878', score: 16, imageUrl: 'https://origin.picgo.net/2026/08/23/52acdd43426a50f17.th.jpg' },
-                { name: '6', radius: 53, color: '#8da838', glow: '#c8d870', score: 32, imageUrl: 'https://origin.picgo.net/2026/08/23/6c4e86495c3bb3c5b.th.jpg' },
-                { name: '7', radius: 63, color: '#e0a890', glow: '#f8d4c0', score: 64, imageUrl: 'https://origin.picgo.net/2026/08/23/7070a1bda11ab3487.th.jpg' },
-                { name: '8', radius: 74, color: '#d8b038', glow: '#f0d870', score: 128, imageUrl: 'https://origin.picgo.net/2026/08/23/8f1c0e36d8498d9f0.th.jpg' },
-                { name: '9', radius: 86, color: '#6aad5e', glow: '#98d888', score: 256, imageUrl: 'https://origin.picgo.net/2026/08/23/998979d7c35aa52bf.th.jpg' },
-                { name: '10', radius: 100, color: '#3a7a3a', glow: '#70c870', score: 512, imageUrl: 'https://origin.picgo.net/2026/08/23/119b9c357ff8f11428.th.jpg' },
+                { name: '月巴1', radius: 17, color: '#c44b4b', glow: '#e88080', score: 1, imageUrl: 'https://img.heliar.top/file/1777999332387_1.jpg' },
+                { name: '月巴2', radius: 23, color: '#c94b4b', glow: '#e89090', score: 2, imageUrl: 'https://img.heliar.top/file/1777999331317_2.jpg' },
+                { name: '月巴3', radius: 29, color: '#7b4a9e', glow: '#b890d0', score: 4, imageUrl: 'https://img.heliar.top/file/1777999338153_3.jpg' },
+                { name: '月巴4', radius: 36, color: '#d4852a', glow: '#f0b860', score: 8, imageUrl: 'https://img.heliar.top/file/1777999337478_4.jpg' },
+                { name: '月巴5', radius: 44, color: '#b03a3a', glow: '#e87878', score: 16, imageUrl: 'https://img.heliar.top/file/1777999337162_5.jpg' },
+                { name: '月巴6', radius: 53, color: '#8da838', glow: '#c8d870', score: 32, imageUrl: 'https://img.heliar.top/file/1777999340463_6.jpg' },
+                { name: '月巴7', radius: 63, color: '#e0a890', glow: '#f8d4c0', score: 64, imageUrl: 'https://img.heliar.top/file/1777999344250_7.jpg' },
+                { name: '月巴8', radius: 74, color: '#d8b038', glow: '#f0d870', score: 128, imageUrl: 'https://img.heliar.top/file/1777999338141_8.jpg' },
+                { name: '月巴9', radius: 86, color: '#6aad5e', glow: '#98d888', score: 256, imageUrl: 'https://img.heliar.top/file/1777999341749_9.jpg' },
+                { name: '月巴10', radius: 100, color: '#3a7a3a', glow: '#70c870', score: 512, imageUrl: 'https://img.heliar.top/file/1777999348272_11.jpg' },
             ];
             const MAX_LEVEL = FRUIT_DATA.length - 1;
             const imageCache = {};
@@ -472,6 +823,7 @@
                 if (!url) return null;
                 if (!imageCache[url]) {
                     const img = new Image();
+                    img.crossOrigin = 'anonymous';
                     img.src = url;
                     imageCache[url] = img;
                 }
@@ -488,6 +840,354 @@
 
             let highScore = getHighScore();
             function updateHighScoreDisplay() { highScoreDisplay.textContent = highScore; }
+
+            // ==========================================
+            // 排行榜（本地存储，保留前 10 名）
+            // ==========================================
+            const LEADERBOARD_KEY = 'mergeYueBaLeaderboard_v1';
+            const LEADERBOARD_MAX = 10;
+            let leaderboardHighlightIndex = -1;
+
+            function getLeaderboard() {
+                try {
+                    const raw = localStorage.getItem(LEADERBOARD_KEY);
+                    const list = raw ? JSON.parse(raw) : [];
+                    return Array.isArray(list) ? list : [];
+                } catch (e) { return []; }
+            }
+            function saveLeaderboard(list) { try { localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); } catch (e) {} }
+
+            function addScoreToLeaderboard(finalScore) {
+                leaderboardHighlightIndex = -1;
+                if (finalScore <= 0) return;
+                const list = getLeaderboard();
+                const entry = { score: finalScore, date: Date.now() };
+                list.push(entry);
+                list.sort((a, b) => b.score - a.score);
+                const trimmed = list.slice(0, LEADERBOARD_MAX);
+                saveLeaderboard(trimmed);
+                leaderboardHighlightIndex = trimmed.indexOf(entry);
+            }
+
+            function formatLeaderboardDate(ts) {
+                const d = new Date(ts);
+                const pad = n => (n < 10 ? '0' + n : '' + n);
+                return `${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            }
+
+            function renderLeaderboard() {
+                const list = getLeaderboard();
+                leaderboardList.innerHTML = '';
+                if (list.length === 0) {
+                    const empty = document.createElement('li');
+                    empty.className = 'leaderboard-empty';
+                    empty.textContent = '还没有记录，快来挑战吧！';
+                    leaderboardList.appendChild(empty);
+                    return;
+                }
+                list.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'leaderboard-item';
+                    if (index === leaderboardHighlightIndex) li.classList.add('highlight');
+                    const rank = document.createElement('span');
+                    rank.className = 'lb-rank';
+                    rank.textContent = index + 1;
+                    const date = document.createElement('span');
+                    date.className = 'lb-date';
+                    date.textContent = formatLeaderboardDate(item.date);
+                    const scoreSpan = document.createElement('span');
+                    scoreSpan.className = 'lb-score';
+                    scoreSpan.textContent = item.score;
+                    li.appendChild(rank);
+                    li.appendChild(date);
+                    li.appendChild(scoreSpan);
+                    leaderboardList.appendChild(li);
+                });
+            }
+
+            function showLeaderboard() { renderLeaderboard(); leaderboardOverlay.classList.add('active'); }
+            function hideLeaderboard() { leaderboardOverlay.classList.remove('active'); }
+
+            function toggleLeaderboard(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (leaderboardOverlay.classList.contains('active')) hideLeaderboard();
+                else showLeaderboard();
+            }
+            leaderboardBtn.addEventListener('click', toggleLeaderboard);
+            leaderboardBtn.addEventListener('touchstart', toggleLeaderboard, { passive: false });
+            leaderboardBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+            leaderboardBtn.addEventListener('touchend', (e) => e.stopPropagation());
+            leaderboardCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); hideLeaderboard(); });
+            leaderboardCloseBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); hideLeaderboard(); });
+            leaderboardOverlay.addEventListener('click', (e) => { if (e.target === leaderboardOverlay) hideLeaderboard(); });
+
+            // ==========================================
+            // 数据统计 / 成就（本地存储）
+            // ==========================================
+            const STATS_KEY = 'mergeYueBaStats_v1';
+
+            function defaultStats() {
+                return {
+                    gamesPlayed: 0,
+                    totalScore: 0,
+                    totalPlayTime: 0,
+                    longestGameTime: 0,
+                    totalDrops: 0,
+                    totalMerges: 0,
+                    grandMerges: 0,
+                    fastestGrandMs: 0,
+                    maxLevelMerged: -1,
+                    bestSessionMaxLevel: -1,
+                    maxCombo: 0,
+                    levelMerges: new Array(FRUIT_DATA.length).fill(0),
+                    dailyPlays: {},
+                    firstPlayDate: null,
+                    lastPlayDate: null,
+                    streakCount: 0,
+                    maxStreak: 0,
+                    lastPlayDay: null,
+                    unlocked: {},
+                };
+            }
+
+            function loadStats() {
+                const def = defaultStats();
+                try {
+                    const raw = localStorage.getItem(STATS_KEY);
+                    if (!raw) return def;
+                    const parsed = JSON.parse(raw);
+                    const merged = Object.assign(def, parsed);
+                    if (!Array.isArray(merged.levelMerges) || merged.levelMerges.length !== FRUIT_DATA.length) merged.levelMerges = def.levelMerges;
+                    if (!merged.dailyPlays || typeof merged.dailyPlays !== 'object') merged.dailyPlays = {};
+                    if (!merged.unlocked || typeof merged.unlocked !== 'object') merged.unlocked = {};
+                    return merged;
+                } catch (e) { return def; }
+            }
+            function saveStats() { try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) {} }
+
+            let stats = loadStats();
+
+            // 本局临时数据
+            let gameStartTime = 0;
+            let sessionDrops = 0;
+            let sessionMerges = 0;
+            let sessionMaxCombo = 0;
+            let sessionMaxLevel = -1;
+            let sessionGrandMs = 0;
+
+            const ACHIEVEMENTS = [
+                { id: 'first_merge', icon: '🧩', name: '初次合成', desc: '完成第一次月巴合成' },
+                { id: 'level3', icon: '🔵', name: '小有所成', desc: '合成出月巴3' },
+                { id: 'level5', icon: '🟣', name: '渐入佳境', desc: '合成出月巴5' },
+                { id: 'level7', icon: '🟠', name: '登峰造极', desc: '合成出月巴7' },
+                { id: 'level9', icon: '🟢', name: '炉火纯青', desc: '合成出月巴9' },
+                { id: 'grand', icon: '🌕', name: '合成大月巴', desc: '合成出满级月巴10' },
+                { id: 'combo5', icon: '⚡', name: '连锁反应', desc: '单局达成 5 连锁' },
+                { id: 'combo10', icon: '🔥', name: '连锁狂人', desc: '单局达成 10 连锁' },
+                { id: 'score1000', icon: '💯', name: '千分达成', desc: '单局得分达到 1000' },
+                { id: 'score5000', icon: '🎯', name: '五千分', desc: '单局得分达到 5000' },
+                { id: 'score10000', icon: '👑', name: '万分王者', desc: '单局得分达到 10000' },
+                { id: 'games10', icon: '🎮', name: '常客', desc: '累计游玩 10 局' },
+                { id: 'games50', icon: '🏅', name: '忠实玩家', desc: '累计游玩 50 局' },
+                { id: 'daily3', icon: '📅', name: '三日不辍', desc: '连续 3 天游玩' },
+            ];
+
+            let toastShowing = false;
+            const toastQueue = [];
+
+            function unlockAchievement(id) {
+                if (stats.unlocked[id]) return;
+                stats.unlocked[id] = Date.now();
+                saveStats();
+                toastQueue.push(id);
+                processToastQueue();
+                if (statsOverlay.classList.contains('active')) renderStats();
+            }
+
+            function processToastQueue() {
+                if (toastShowing || toastQueue.length === 0) return;
+                toastShowing = true;
+                const ach = ACHIEVEMENTS.find(a => a.id === toastQueue.shift());
+                if (!ach) { toastShowing = false; processToastQueue(); return; }
+                achievementToast.innerHTML = `<span class="toast-icon">${ach.icon}</span><div><div class="toast-title">成就解锁</div><div class="toast-name">${ach.name}</div></div>`;
+                achievementToast.classList.add('active');
+                setTimeout(() => {
+                    achievementToast.classList.remove('active');
+                    setTimeout(() => { toastShowing = false; processToastQueue(); }, 320);
+                }, 2000);
+            }
+
+            function checkAchievements() {
+                const u = stats.unlocked;
+                if (!u.first_merge && stats.totalMerges >= 1) unlockAchievement('first_merge');
+                if (!u.level3 && stats.maxLevelMerged >= 2) unlockAchievement('level3');
+                if (!u.level5 && stats.maxLevelMerged >= 4) unlockAchievement('level5');
+                if (!u.level7 && stats.maxLevelMerged >= 6) unlockAchievement('level7');
+                if (!u.level9 && stats.maxLevelMerged >= 8) unlockAchievement('level9');
+                if (!u.grand && stats.grandMerges >= 1) unlockAchievement('grand');
+                if (!u.combo5 && stats.maxCombo >= 5) unlockAchievement('combo5');
+                if (!u.combo10 && stats.maxCombo >= 10) unlockAchievement('combo10');
+                if (!u.score1000 && score >= 1000) unlockAchievement('score1000');
+                if (!u.score5000 && score >= 5000) unlockAchievement('score5000');
+                if (!u.score10000 && score >= 10000) unlockAchievement('score10000');
+                if (!u.games10 && stats.gamesPlayed >= 10) unlockAchievement('games10');
+                if (!u.games50 && stats.gamesPlayed >= 50) unlockAchievement('games50');
+                if (!u.daily3 && stats.maxStreak >= 3) unlockAchievement('daily3');
+            }
+
+            function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+            function dayKey(ts) {
+                const d = new Date(ts);
+                return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+            }
+            function formatDuration(ms) {
+                if (!ms || ms < 0) ms = 0;
+                const totalSec = Math.floor(ms / 1000);
+                const h = Math.floor(totalSec / 3600);
+                const m = Math.floor((totalSec % 3600) / 60);
+                const s = totalSec % 60;
+                if (h > 0) return `${h}时${m}分`;
+                if (m > 0) return `${m}分${s}秒`;
+                return `${s}秒`;
+            }
+            function formatDate(ts) {
+                if (!ts) return '暂无';
+                const d = new Date(ts);
+                return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+            }
+
+            function recordDailyPlay() {
+                const today = dayKey(Date.now());
+                stats.dailyPlays[today] = (stats.dailyPlays[today] || 0) + 1;
+                if (stats.lastPlayDay !== today) {
+                    const y = new Date(); y.setDate(y.getDate() - 1);
+                    const yesterday = dayKey(y.getTime());
+                    stats.streakCount = stats.lastPlayDay === yesterday ? (stats.streakCount || 0) + 1 : 1;
+                    stats.lastPlayDay = today;
+                    if (stats.streakCount > stats.maxStreak) stats.maxStreak = stats.streakCount;
+                }
+            }
+
+            function buildStatCard(value, label) {
+                return `<div class="stat-card"><div class="stat-value">${value}</div><div class="stat-label">${label}</div></div>`;
+            }
+
+            function renderStats() {
+                const avgScore = stats.gamesPlayed > 0 ? Math.round(stats.totalScore / stats.gamesPlayed) : 0;
+                const bestLevelText = stats.bestSessionMaxLevel >= 0 ? '月巴' + (stats.bestSessionMaxLevel + 1) : '暂无';
+
+                let html = '';
+
+                html += `<div class="stats-section">
+                    <div class="stats-section-title">生涯总览</div>
+                    <div class="stats-grid">
+                        ${buildStatCard(stats.gamesPlayed, '游玩局数')}
+                        ${buildStatCard(avgScore, '平均分')}
+                        ${buildStatCard(formatDuration(stats.totalPlayTime), '累计时长')}
+                        ${buildStatCard(stats.grandMerges + ' 次', '合成大月巴')}
+                        ${buildStatCard(stats.totalMerges, '累计合成')}
+                        ${buildStatCard(stats.totalDrops, '释放月巴')}
+                        ${buildStatCard(stats.maxStreak + ' 天', '最长连续')}
+                        ${buildStatCard(formatDate(stats.firstPlayDate), '首次游玩')}
+                    </div>
+                </div>`;
+
+                html += `<div class="stats-section">
+                    <div class="stats-section-title">单局纪录</div>
+                    <div class="stats-grid">
+                        ${buildStatCard(stats.maxCombo, '最高连锁')}
+                        ${buildStatCard(bestLevelText, '最高合成等级')}
+                        ${buildStatCard(formatDuration(stats.longestGameTime), '最长单局')}
+                        ${buildStatCard(stats.fastestGrandMs ? formatDuration(stats.fastestGrandMs) : '暂无', '最快大月巴')}
+                    </div>
+                </div>`;
+
+                const unlockedCount = Object.keys(stats.unlocked).length;
+                let achHtml = '';
+                for (const a of ACHIEVEMENTS) {
+                    const unlocked = !!stats.unlocked[a.id];
+                    achHtml += `<div class="ach-item${unlocked ? ' unlocked' : ''}">
+                        <span class="ach-icon">${a.icon}</span>
+                        <div class="ach-info"><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div>
+                        ${unlocked ? '<span class="ach-badge">✅</span>' : ''}
+                    </div>`;
+                }
+                html += `<div class="stats-section">
+                    <div class="stats-section-title">成就（${unlockedCount}/${ACHIEVEMENTS.length}）</div>
+                    <div class="ach-list">${achHtml}</div>
+                </div>`;
+
+                // 各等级合成数量柱状图
+                const levelCounts = [];
+                for (let i = 1; i < FRUIT_DATA.length; i++) levelCounts.push(stats.levelMerges[i] || 0);
+                const maxCount = Math.max(1, ...levelCounts);
+                let barsHtml = '';
+                for (let i = 0; i < levelCounts.length; i++) {
+                    const count = levelCounts[i];
+                    const heightPct = count > 0 ? Math.max(6, Math.round(count / maxCount * 100)) : 0;
+                    barsHtml += `<div class="bar-col">
+                        <div class="bar-count">${count > 0 ? count : ''}</div>
+                        <div class="bar-fill${count > 0 ? '' : ' empty'}" style="height:${heightPct}%"></div>
+                        <div class="bar-label">${i + 1}</div>
+                    </div>`;
+                }
+                html += `<div class="stats-section">
+                    <div class="stats-section-title">合成数量分布</div>
+                    <div class="bar-chart">${barsHtml}</div>
+                </div>`;
+
+                // 游玩日历热力图（最近 12 周）
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                const start = new Date(today);
+                start.setDate(start.getDate() - (12 * 7 - 1));
+                start.setDate(start.getDate() - start.getDay());
+                const cells = [];
+                const cursor = new Date(start);
+                while (cursor <= today) {
+                    const key = dayKey(cursor.getTime());
+                    cells.push(stats.dailyPlays[key] || 0);
+                    cursor.setDate(cursor.getDate() + 1);
+                }
+                while (cells.length % 7 !== 0) cells.push(-1); // -1 表示占位
+                const maxDay = Math.max(1, ...cells.filter(c => c > 0));
+                let heatHtml = '';
+                for (const c of cells) {
+                    if (c < 0) { heatHtml += '<div class="heat-cell" style="background:transparent"></div>'; continue; }
+                    let lv = 0;
+                    if (c > 0) {
+                        const ratio = c / maxDay;
+                        lv = ratio > 0.75 ? 4 : ratio > 0.5 ? 3 : ratio > 0.25 ? 2 : 1;
+                    }
+                    heatHtml += `<div class="heat-cell${lv > 0 ? ' lv' + lv : ''}"></div>`;
+                }
+                html += `<div class="stats-section">
+                    <div class="stats-section-title">游玩日历（近 12 周）</div>
+                    <div class="heatmap">${heatHtml}</div>
+                    <div class="heat-legend"><span>少</span>
+                        <div class="heat-cell"></div><div class="heat-cell lv1"></div><div class="heat-cell lv2"></div><div class="heat-cell lv3"></div><div class="heat-cell lv4"></div>
+                        <span>多</span></div>
+                </div>`;
+
+                statsScroll.innerHTML = html;
+            }
+
+            function showStats() { renderStats(); statsOverlay.classList.add('active'); }
+            function hideStats() { statsOverlay.classList.remove('active'); }
+
+            function toggleStats(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (statsOverlay.classList.contains('active')) hideStats();
+                else showStats();
+            }
+            statsBtn.addEventListener('click', toggleStats);
+            statsBtn.addEventListener('touchstart', toggleStats, { passive: false });
+            statsBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+            statsBtn.addEventListener('touchend', (e) => e.stopPropagation());
+            statsCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); hideStats(); });
+            statsCloseBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); hideStats(); });
+            statsOverlay.addEventListener('click', (e) => { if (e.target === statsOverlay) hideStats(); });
 
             let fruits = [];
             let previewFruit = null;
@@ -579,6 +1279,12 @@
                 hintOpacity = 1;
                 hasFirstDrop = false;
                 dangerTimer = 0; 
+                gameStartTime = Date.now();
+                sessionDrops = 0;
+                sessionMerges = 0;
+                sessionMaxCombo = 0;
+                sessionMaxLevel = -1;
+                sessionGrandMs = 0;
                 nextFruitLevel = randomFruitLevel();
                 spawnPreviewFruit();
                 updateScoreDisplay(); 
@@ -673,6 +1379,9 @@
                 releaseCooldown = RELEASE_COOLDOWN_FRAMES;
                 hasFirstDrop = true;
                 hintOpacity = 0;
+                stats.totalDrops++;
+                sessionDrops++;
+                saveStats();
                 spawnPreviewFruit();
             }
 
@@ -804,6 +1513,15 @@
                             fruits.push(newFruit);
                             mergeChainCount++;
                             
+                            // 数据记录：合成次数、等级分布、最高等级、连锁
+                            stats.totalMerges++;
+                            stats.levelMerges[newLevel] = (stats.levelMerges[newLevel] || 0) + 1;
+                            sessionMerges++;
+                            if (newLevel > stats.maxLevelMerged) stats.maxLevelMerged = newLevel;
+                            if (newLevel > sessionMaxLevel) sessionMaxLevel = newLevel;
+                            if (mergeChainCount > sessionMaxCombo) sessionMaxCombo = mergeChainCount;
+                            if (mergeChainCount > stats.maxCombo) stats.maxCombo = mergeChainCount;
+                            
                             const particleIntensity = 1 + mergeChainCount * 0.3;
                             const particleCount = 15 + newLevel * 5 + mergeChainCount * 5;
                             spawnParticles(clampedX, clampedY, particleCount, newData.color, newData.glow, particleIntensity);
@@ -819,9 +1537,15 @@
                                 score += 4000;
                                 triggerScorePulse(); 
                                 showCelebration(); 
+                                // 数据记录：合成大月巴次数与最快用时
+                                stats.grandMerges++;
+                                sessionGrandMs = Date.now() - gameStartTime;
+                                if (!stats.fastestGrandMs || sessionGrandMs < stats.fastestGrandMs) stats.fastestGrandMs = sessionGrandMs;
                             }
                             merged = true;
                             
+                            checkAchievements();
+                            saveStats();
                             playDropSound(); 
                             break;
                         }
@@ -963,6 +1687,21 @@
                 if (score > highScore) { highScore = score; setHighScore(highScore); updateHighScoreDisplay(); isNewRecord = true; }
                 gameOverHighScore.textContent = '最高分：' + highScore;
                 if (isNewRecord) { gameOverHighScore.classList.add('new-record'); } else { gameOverHighScore.classList.remove('new-record'); }
+
+                addScoreToLeaderboard(score);
+                
+                // 数据记录：局数、总分、时长、单局纪录、游玩日历与成就
+                const gameDuration = gameStartTime ? Date.now() - gameStartTime : 0;
+                stats.gamesPlayed++;
+                stats.totalScore += score;
+                stats.totalPlayTime += gameDuration;
+                if (gameDuration > stats.longestGameTime) stats.longestGameTime = gameDuration;
+                if (sessionMaxLevel > stats.bestSessionMaxLevel) stats.bestSessionMaxLevel = sessionMaxLevel;
+                if (!stats.firstPlayDate) stats.firstPlayDate = Date.now();
+                stats.lastPlayDate = Date.now();
+                recordDailyPlay();
+                checkAchievements();
+                saveStats();
                 
                 gameOverOverlay.classList.add('active');
                 hintTextOuter.style.opacity = '0';
