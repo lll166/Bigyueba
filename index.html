@@ -975,6 +975,8 @@
             let sessionMaxCombo = 0;
             let sessionMaxLevel = -1;
             let sessionGrandMs = 0;
+            let sessionMergedLevels = {}; // 本局已合成过的等级，用于「满堂彩」成就
+            let lastAchCheck = 0; // 上次时间类成就检测的时间戳
 
             const ACHIEVEMENTS = [
                 { id: 'first_merge', icon: '🧩', name: '初次合成', desc: '完成第一次月巴合成' },
@@ -988,9 +990,29 @@
                 { id: 'score1000', icon: '💯', name: '千分达成', desc: '单局得分达到 1000' },
                 { id: 'score5000', icon: '🎯', name: '五千分', desc: '单局得分达到 5000' },
                 { id: 'score10000', icon: '👑', name: '万分王者', desc: '单局得分达到 10000' },
+                { id: 'score20000', icon: '💎', name: '两万分', desc: '单局得分达到 20000' },
+                { id: 'score30000', icon: '🌟', name: '三万分', desc: '单局得分达到 30000' },
+                { id: 'score50000', icon: '🏆', name: '五万分大神', desc: '单局得分达到 50000' },
                 { id: 'games10', icon: '🎮', name: '常客', desc: '累计游玩 10 局' },
                 { id: 'games50', icon: '🏅', name: '忠实玩家', desc: '累计游玩 50 局' },
                 { id: 'daily3', icon: '📅', name: '三日不辍', desc: '连续 3 天游玩' },
+                { id: 'combo15', icon: '🌪️', name: '连锁风暴', desc: '单局达成 15 连锁' },
+                { id: 'combo20', icon: '☄️', name: '连锁之神', desc: '单局达成 20 连锁' },
+                { id: 'drops100', icon: '👆', name: '百投不误', desc: '累计释放月巴 100 次' },
+                { id: 'drops1000', icon: '💪', name: '千锤百炼', desc: '累计释放月巴 1000 次' },
+                { id: 'merges100', icon: '🧪', name: '合成百次', desc: '累计合成 100 次' },
+                { id: 'merges1000', icon: '⚗️', name: '合成大师', desc: '累计合成 1000 次' },
+                { id: 'grand3', icon: '🌕', name: '三星连珠', desc: '累计合成 3 次大月巴' },
+                { id: 'grand10', icon: '🌠', name: '月巴之王', desc: '累计合成 10 次大月巴' },
+                { id: 'fastGrand', icon: '⏱️', name: '速通好手', desc: '3 分钟内合成出大月巴' },
+                { id: 'fastGrand60', icon: '🚀', name: '神速月巴', desc: '1 分钟内合成出大月巴' },
+                { id: 'longgame5', icon: '🕐', name: '持久战', desc: '单局时长达到 5 分钟' },
+                { id: 'longgame10', icon: '⏳', name: '十年磨一剑', desc: '单局时长达到 10 分钟' },
+                { id: 'games100', icon: '🎖️', name: '百局老将', desc: '累计游玩 100 局' },
+                { id: 'daily7', icon: '🗓️', name: '一周坚持', desc: '连续 7 天游玩' },
+                { id: 'totalScore100k', icon: '📈', name: '十万总分', desc: '生涯累计总分达到 100000' },
+                { id: 'totalScore500k', icon: '📊', name: '五十万总分', desc: '生涯累计总分达到 500000' },
+                { id: 'fullHouse', icon: '🧊', name: '满堂彩', desc: '单局合成过所有等级（月巴2~10）' },
             ];
 
             let toastShowing = false;
@@ -1031,9 +1053,33 @@
                 if (!u.score1000 && score >= 1000) unlockAchievement('score1000');
                 if (!u.score5000 && score >= 5000) unlockAchievement('score5000');
                 if (!u.score10000 && score >= 10000) unlockAchievement('score10000');
+                if (!u.score20000 && score >= 20000) unlockAchievement('score20000');
+                if (!u.score30000 && score >= 30000) unlockAchievement('score30000');
+                if (!u.score50000 && score >= 50000) unlockAchievement('score50000');
                 if (!u.games10 && stats.gamesPlayed >= 10) unlockAchievement('games10');
                 if (!u.games50 && stats.gamesPlayed >= 50) unlockAchievement('games50');
                 if (!u.daily3 && stats.maxStreak >= 3) unlockAchievement('daily3');
+                if (!u.combo15 && stats.maxCombo >= 15) unlockAchievement('combo15');
+                if (!u.combo20 && stats.maxCombo >= 20) unlockAchievement('combo20');
+                if (!u.drops100 && stats.totalDrops >= 100) unlockAchievement('drops100');
+                if (!u.drops1000 && stats.totalDrops >= 1000) unlockAchievement('drops1000');
+                if (!u.merges100 && stats.totalMerges >= 100) unlockAchievement('merges100');
+                if (!u.merges1000 && stats.totalMerges >= 1000) unlockAchievement('merges1000');
+                if (!u.grand3 && stats.grandMerges >= 3) unlockAchievement('grand3');
+                if (!u.grand10 && stats.grandMerges >= 10) unlockAchievement('grand10');
+                if (!u.games100 && stats.gamesPlayed >= 100) unlockAchievement('games100');
+                if (!u.daily7 && stats.maxStreak >= 7) unlockAchievement('daily7');
+                if (!u.totalScore100k && stats.totalScore >= 100000) unlockAchievement('totalScore100k');
+                if (!u.totalScore500k && stats.totalScore >= 500000) unlockAchievement('totalScore500k');
+                if (!u.fastGrand && sessionGrandMs > 0 && sessionGrandMs <= 180000) unlockAchievement('fastGrand');
+                if (!u.fastGrand60 && sessionGrandMs > 0 && sessionGrandMs <= 60000) unlockAchievement('fastGrand60');
+                if (!u.longgame5 && gameStartTime > 0 && Date.now() - gameStartTime >= 300000) unlockAchievement('longgame5');
+                if (!u.longgame10 && gameStartTime > 0 && Date.now() - gameStartTime >= 600000) unlockAchievement('longgame10');
+                if (!u.fullHouse) {
+                    let all = true;
+                    for (let lv = 1; lv <= MAX_LEVEL; lv++) { if (!sessionMergedLevels[lv]) { all = false; break; } }
+                    if (all) unlockAchievement('fullHouse');
+                }
             }
 
             function pad2(n) { return n < 10 ? '0' + n : '' + n; }
@@ -1214,6 +1260,13 @@
             let canvasHeight = 600;
             let dpr = 1;
 
+            // 性能优化：离屏缓存
+            let bgCanvas = null;       // 背景（渐变+点阵）预渲染缓存
+            let bgCtx = null;
+            let staticGrads = {};      // 依赖尺寸的静态渐变缓存（danger/top 等）
+            let spriteCache = {};      // 各等级水果预渲染精灵缓存
+            let spriteDpr = 0;         // 精灵缓存对应的 dpr，变化时失效
+
             let wallLeft = 0;
             let wallRight = 375;
             let groundY = 600;
@@ -1231,7 +1284,8 @@
                 const rect = container.getBoundingClientRect();
                 const cssWidth = rect.width;
                 const cssHeight = rect.height;
-                dpr = Math.min(window.devicePixelRatio || 1, 2);
+                // 性能优化：DPR 上限由 2 降为 1.75，肉眼几乎无差异，但像素量减少约 23%
+                dpr = Math.min(window.devicePixelRatio || 1, 1.75);
                 canvasWidth = Math.floor(cssWidth * dpr);
                 canvasHeight = Math.floor(cssHeight * dpr);
                 canvas.width = canvasWidth;
@@ -1242,6 +1296,8 @@
                 wallRight = canvasWidth;
                 groundY = canvasHeight;
                 dangerLineY = Math.floor(canvasHeight * 0.18);
+                // 性能优化：尺寸变化后重建背景缓存与静态渐变缓存
+                bgCanvas = null; staticGrads = {};
                 if (previewFruit && previewFruit.level !== undefined) {
                     const r = FRUIT_DATA[previewFruit.level].radius * dpr;
                     previewFruit.y = Math.floor(dangerLineY * 0.55);
@@ -1285,6 +1341,8 @@
                 sessionMaxCombo = 0;
                 sessionMaxLevel = -1;
                 sessionGrandMs = 0;
+                sessionMergedLevels = {};
+                lastAchCheck = 0;
                 nextFruitLevel = randomFruitLevel();
                 spawnPreviewFruit();
                 updateScoreDisplay(); 
@@ -1519,6 +1577,7 @@
                             sessionMerges++;
                             if (newLevel > stats.maxLevelMerged) stats.maxLevelMerged = newLevel;
                             if (newLevel > sessionMaxLevel) sessionMaxLevel = newLevel;
+                            sessionMergedLevels[newLevel] = true;
                             if (mergeChainCount > sessionMaxCombo) sessionMaxCombo = mergeChainCount;
                             if (mergeChainCount > stats.maxCombo) stats.maxCombo = mergeChainCount;
                             
@@ -1715,38 +1774,77 @@
                 }
             }
 
-            function drawFruit(ctx, fruit, alpha = 1) {
-                const { x, y, radius, imageUrl } = fruit; const r = radius;
-                ctx.save(); ctx.globalAlpha = alpha;
-                ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = r * 0.18; ctx.shadowOffsetX = r * 0.04; ctx.shadowOffsetY = r * 0.07;
-                const baseGrad = ctx.createRadialGradient(x - r * 0.2, y - r * 0.25, r * 0.05, x, y, r);
+            // 性能优化：把某一等级水果的整体外观（阴影+底色渐变+图片+描边+高光）
+            // 预渲染到一张离屏画布，之后每帧只需一次 drawImage，避免逐帧重建渐变与阴影。
+            function getFruitSprite(level) {
+                if (spriteDpr !== dpr) { spriteCache = {}; spriteDpr = dpr; }
+                const cached = spriteCache[level];
+                if (cached) return cached;
+                const data = FRUIT_DATA[level];
+                const r = data.radius * dpr;
+                const pad = Math.ceil(r * 0.4) + 2;         // 预留阴影/高光溢出空间
+                const size = Math.ceil(r * 2 + pad * 2);
+                const sc = document.createElement('canvas');
+                sc.width = size; sc.height = size;
+                const g = sc.getContext('2d');
+                const cx = size / 2, cy = size / 2;
+                // 与 drawFruit 完全一致的绘制顺序，保证观感不变
+                g.shadowColor = 'rgba(0,0,0,0.25)'; g.shadowBlur = r * 0.18; g.shadowOffsetX = r * 0.04; g.shadowOffsetY = r * 0.07;
+                const baseGrad = g.createRadialGradient(cx - r * 0.2, cy - r * 0.25, r * 0.05, cx, cy, r);
                 baseGrad.addColorStop(0, 'rgba(55,52,60,0.7)'); baseGrad.addColorStop(0.6, 'rgba(40,38,45,0.88)'); baseGrad.addColorStop(1, 'rgba(28,27,33,0.96)');
-                ctx.fillStyle = baseGrad; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-                ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-                const img = loadImage(imageUrl); const innerR = r * 0.93;
+                g.fillStyle = baseGrad; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+                g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetX = 0; g.shadowOffsetY = 0;
+                const img = loadImage(data.imageUrl); const innerR = r * 0.93;
                 if (img && img.complete && img.naturalWidth > 0) {
-                    ctx.save(); ctx.beginPath(); ctx.arc(x, y, innerR, 0, Math.PI * 2); ctx.clip();
-                    const imgSize = innerR * 2; ctx.drawImage(img, x - imgSize / 2, y - imgSize / 2, imgSize, imgSize);
+                    g.save(); g.beginPath(); g.arc(cx, cy, innerR, 0, Math.PI * 2); g.clip();
+                    const imgSize = innerR * 2; g.drawImage(img, cx - imgSize / 2, cy - imgSize / 2, imgSize, imgSize);
+                    g.restore();
+                }
+                g.strokeStyle = 'rgba(170,160,188,0.88)'; g.lineWidth = r * 0.07; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
+                g.strokeStyle = 'rgba(190,182,206,0.6)'; g.lineWidth = r * 0.03; g.beginPath(); g.arc(cx, cy, innerR + r * 0.018, 0, Math.PI * 2); g.stroke();
+                const hlGrad = g.createRadialGradient(cx - r * 0.28, cy - r * 0.32, r * 0.02, cx - r * 0.15, cy - r * 0.2, r * 0.55);
+                hlGrad.addColorStop(0, 'rgba(255,255,255,0.4)'); hlGrad.addColorStop(0.5, 'rgba(255,255,255,0.1)'); hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                g.fillStyle = hlGrad; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+                const sprite = { canvas: sc, half: size / 2 };
+                // 图片未加载完成时不缓存，待加载后再生成，避免缓存了缺图的版本
+                if (img && img.complete && img.naturalWidth > 0) spriteCache[level] = sprite;
+                return sprite;
+            }
+
+            function drawFruit(ctx, fruit, alpha = 1) {
+                const { x, y, level } = fruit;
+                if (level === undefined || !FRUIT_DATA[level]) return;
+                const sprite = getFruitSprite(level);
+                if (alpha === 1) {
+                    ctx.drawImage(sprite.canvas, x - sprite.half, y - sprite.half);
+                } else {
+                    ctx.save(); ctx.globalAlpha = alpha;
+                    ctx.drawImage(sprite.canvas, x - sprite.half, y - sprite.half);
                     ctx.restore();
                 }
-                ctx.strokeStyle = 'rgba(170,160,188,0.88)'; ctx.lineWidth = r * 0.07; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
-                ctx.strokeStyle = 'rgba(190,182,206,0.6)'; ctx.lineWidth = r * 0.03; ctx.beginPath(); ctx.arc(x, y, innerR + r * 0.018, 0, Math.PI * 2); ctx.stroke();
-                const hlGrad = ctx.createRadialGradient(x - r * 0.28, y - r * 0.32, r * 0.02, x - r * 0.15, y - r * 0.2, r * 0.55);
-                hlGrad.addColorStop(0, 'rgba(255,255,255,0.4)'); hlGrad.addColorStop(0.5, 'rgba(255,255,255,0.1)'); hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = hlGrad; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
             }
 
             function drawBackground(ctx) {
-                const bgGrad = ctx.createLinearGradient(0, 0, 0, canvasHeight);
-                bgGrad.addColorStop(0, 'rgba(28,27,33,0.85)'); bgGrad.addColorStop(0.5, 'rgba(32,31,38,0.9)'); bgGrad.addColorStop(1, 'rgba(24,23,29,0.92)');
-                ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                ctx.fillStyle = 'rgba(190,180,210,0.012)'; const dotSpacing = 18 * dpr;
-                for (let dx = dotSpacing; dx < canvasWidth; dx += dotSpacing) {
-                    for (let dy = dotSpacing; dy < canvasHeight; dy += dotSpacing) {
-                        ctx.beginPath(); ctx.arc(dx, dy, 0.5 * dpr, 0, Math.PI * 2); ctx.fill();
+                // 性能优化：背景（渐变+点阵）只在尺寸变化时绘制一次到离屏画布，之后每帧一次 drawImage
+                if (!bgCanvas) {
+                    bgCanvas = document.createElement('canvas');
+                    bgCanvas.width = canvasWidth; bgCanvas.height = canvasHeight;
+                    bgCtx = bgCanvas.getContext('2d');
+                    const bgGrad = bgCtx.createLinearGradient(0, 0, 0, canvasHeight);
+                    bgGrad.addColorStop(0, 'rgba(28,27,33,0.85)'); bgGrad.addColorStop(0.5, 'rgba(32,31,38,0.9)'); bgGrad.addColorStop(1, 'rgba(24,23,29,0.92)');
+                    bgCtx.fillStyle = bgGrad; bgCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+                    bgCtx.fillStyle = 'rgba(190,180,210,0.012)';
+                    const dots = [];
+                    const dotSpacing = 18 * dpr;
+                    for (let dx = dotSpacing; dx < canvasWidth; dx += dotSpacing) {
+                        for (let dy = dotSpacing; dy < canvasHeight; dy += dotSpacing) { dots.push(dx, dy); }
                     }
+                    // 用一个 Path2D 一次性描画所有点，减少状态切换
+                    const dotPath = new Path2D();
+                    for (let i = 0; i < dots.length; i += 2) { dotPath.moveTo(dots[i] + 0.5 * dpr, dots[i + 1]); dotPath.arc(dots[i], dots[i + 1], 0.5 * dpr, 0, Math.PI * 2); }
+                    bgCtx.fill(dotPath);
                 }
+                ctx.drawImage(bgCanvas, 0, 0);
             }
 
             function drawDangerLine(ctx) {
@@ -1757,11 +1855,15 @@
                 ctx.fillText('⚠ 警戒线', canvasWidth - 14 * dpr, y - 4 * dpr);
             }
 
+            // 性能优化：可复用的水果排序数组，避免每帧新建数组
+            const _renderFruits = [];
             function render() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight); ctx.save(); if (shakeAmount > 0.01) ctx.translate(shakeX, shakeY);
                 drawBackground(ctx); drawDangerLine(ctx);
-                const sortedFruits = [...fruits].filter(f => f.exists).sort((a, b) => a.y - b.y);
-                for (const fruit of sortedFruits) { drawFruit(ctx, fruit, 1); }
+                _renderFruits.length = 0;
+                for (const f of fruits) { if (f.exists) _renderFruits.push(f); }
+                _renderFruits.sort((a, b) => a.y - b.y);
+                for (const fruit of _renderFruits) { drawFruit(ctx, fruit, 1); }
                 if (previewFruit && !gameOver && !isCelebrating && releaseCooldown <= 0) {
                     const previewAlpha = 0.7 + Math.sin(Date.now() / 400) * 0.15; drawFruit(ctx, previewFruit, previewAlpha);
                     const px = previewFruit.x; const py = previewFruit.y + previewFruit.radius;
@@ -1769,11 +1871,39 @@
                     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + 28 * dpr); ctx.stroke(); ctx.setLineDash([]);
                 }
                 drawParticles(ctx); ctx.restore();
-                const topGrad = ctx.createLinearGradient(0, 0, 0, dangerLineY); topGrad.addColorStop(0, 'rgba(20,20,24,0.6)'); topGrad.addColorStop(1, 'rgba(20,20,24,0)');
+                // 性能优化：顶部渐变按尺寸缓存，避免每帧重建
+                let topGrad = staticGrads.top;
+                if (!topGrad) {
+                    topGrad = ctx.createLinearGradient(0, 0, 0, dangerLineY);
+                    topGrad.addColorStop(0, 'rgba(20,20,24,0.6)'); topGrad.addColorStop(1, 'rgba(20,20,24,0)');
+                    staticGrads.top = topGrad;
+                }
                 ctx.fillStyle = topGrad; ctx.fillRect(0, 0, canvasWidth, dangerLineY);
             }
 
             let lastTime = 0; let accumulator = 0; const fixedDt = 1000 / 60;
+
+            // 性能优化：静止帧降频。物理仍按 60fps 计算，但画面静止时渲染降到约 20fps，
+            // 一旦有任意物体移动/粒子/操作/动画，立即恢复 60fps，肉眼无感。
+            let lastRenderTime = 0;
+            let forceActiveUntil = 0; // 该时间戳之前强制全速渲染（如点击、合成庆祝）
+            const IDLE_RENDER_INTERVAL = 1000 / 20;
+
+            function isSceneActive(now) {
+                if (now < forceActiveUntil) return true;
+                if (shakeAmount > 0.01) return true;
+                if (particles.length > 0) return true;
+                if (isCelebrating || gameOver) return true;
+                if (!hasFirstDrop) return true;                 // 顶部提示脉动动画
+                if (previewFruit && releaseCooldown <= 0) return true; // 待释放水果的上下浮动动画
+                // 任一水果仍在明显移动
+                for (const f of fruits) {
+                    if (!f.exists) continue;
+                    if (Math.abs(f.vx) > 0.08 || Math.abs(f.vy) > 0.08) return true;
+                }
+                return false;
+            }
+
             function gameLoop(timestamp) {
                 if (!lastTime) lastTime = timestamp; let dt = timestamp - lastTime; lastTime = timestamp; if (dt > 100) dt = 100;
                 accumulator += dt; let updates = 0;
@@ -1789,11 +1919,21 @@
                     if (increment < 1 && diff > 0) increment = 1;
                     displayedScore += increment;
                     scoreDisplay.textContent = displayedScore;
+                    forceActiveUntil = timestamp + 300; // 分数滚动期间保持全速
                 }
 
                 if (!hasFirstDrop && !gameOver) { hintOpacity = 0.6 + Math.sin(timestamp / 1800) * 0.3; hintTextOuter.style.opacity = hintOpacity; }
                 else if (hasFirstDrop && hintOpacity > 0) { hintOpacity = Math.max(0, hintOpacity - 0.015); hintTextOuter.style.opacity = hintOpacity; }
-                render(); requestAnimationFrame(gameLoop);
+
+                // 周期性检测时间类成就（如单局时长），每约 1 秒一次
+                if (!gameOver && timestamp - lastAchCheck > 1000) { lastAchCheck = timestamp; checkAchievements(); saveStats(); }
+
+                // 性能优化：静止时降频渲染
+                if (isSceneActive(timestamp) || timestamp - lastRenderTime >= IDLE_RENDER_INTERVAL) {
+                    lastRenderTime = timestamp;
+                    render();
+                }
+                requestAnimationFrame(gameLoop);
             }
 
             function getEventPos(e) {
