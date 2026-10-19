@@ -364,6 +364,57 @@
             transform: scale(0.9);
         }
 
+        /* 语言切换按钮样式 */
+        .lang-btn {
+            position: absolute;
+            top: 15px;
+            right: 45px;
+            z-index: 30;
+            font-size: 1.2rem;
+            opacity: 0.25;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (hover: hover) {
+            .lang-btn:hover {
+                opacity: 0.6;
+            }
+        }
+        .lang-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* 语言选择列表 */
+        .lang-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .lang-option {
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(60, 58, 66, 0.6);
+            border: 1px solid var(--border-subtle);
+            color: var(--white);
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .lang-option:active {
+            transform: scale(0.97);
+        }
+        .lang-option.active {
+            background: rgba(196, 181, 224, 0.22);
+            border-color: var(--light-purple);
+            color: var(--light-purple);
+        }
+
         /* 排行榜面板样式 */
         .leaderboard-overlay {
             position: absolute;
@@ -673,6 +724,7 @@
             .sound-toggle-btn { top: 12px; right: 12px; font-size: 1.1rem; }
             .leaderboard-btn { top: 12px; left: 12px; font-size: 1.1rem; }
             .stats-btn { top: 12px; left: 42px; font-size: 1.1rem; }
+            .lang-btn { top: 12px; right: 42px; font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -680,15 +732,15 @@
     <div class="game-wrapper">
         <div class="game-header">
             <div class="score-display">
-                <span class="score-label">分数</span>
+                <span class="score-label" id="scoreLabel">分数</span>
                 <span class="score-value" id="scoreDisplay">0</span>
             </div>
             <div class="high-score-display">
-                <span class="hs-label">最高</span>
+                <span class="hs-label" id="hsLabel">最高</span>
                 <span class="hs-value" id="highScoreDisplay">0</span>
             </div>
             <div class="next-preview">
-                <span class="label">下一个</span>
+                <span class="label" id="nextLabel">下一个</span>
                 <div class="next-icon-wrap" id="nextPreviewWrap">
                     <img id="nextPreviewImg" src="" alt="">
                 </div>
@@ -701,10 +753,11 @@
             <div class="sound-toggle-btn" id="soundToggleBtn" title="切换音效">🔊</div>
             <div class="leaderboard-btn" id="leaderboardBtn" title="排行榜">🏆</div>
             <div class="stats-btn" id="statsBtn" title="数据统计">📊</div>
+            <div class="lang-btn" id="langBtn" title="语言">🌐</div>
 
             <div class="leaderboard-overlay" id="leaderboardOverlay">
                 <div class="leaderboard-panel">
-                    <div class="leaderboard-title">🏆 排行榜</div>
+                    <div class="leaderboard-title" id="leaderboardTitle">🏆 排行榜</div>
                     <ul class="leaderboard-list" id="leaderboardList"></ul>
                     <button class="leaderboard-close-btn" id="leaderboardCloseBtn">关闭</button>
                 </div>
@@ -712,17 +765,25 @@
 
             <div class="stats-overlay" id="statsOverlay">
                 <div class="stats-panel">
-                    <div class="leaderboard-title">📊 数据统计</div>
+                    <div class="leaderboard-title" id="statsPanelTitle">📊 数据统计</div>
                     <div class="stats-scroll" id="statsScroll"></div>
                     <button class="leaderboard-close-btn" id="statsCloseBtn">关闭</button>
+                </div>
+            </div>
+
+            <div class="leaderboard-overlay" id="langOverlay">
+                <div class="leaderboard-panel">
+                    <div class="leaderboard-title" id="langPanelTitle">🌐 语言</div>
+                    <div class="lang-list" id="langList"></div>
+                    <button class="leaderboard-close-btn" id="langCloseBtn">关闭</button>
                 </div>
             </div>
 
             <div class="achievement-toast" id="achievementToast"></div>
 
             <div class="celebrate-overlay" id="celebrateOverlay">
-                <div class="celebrate-title">恭喜你合成大月巴！</div>
-                <div class="celebrate-subtitle">点击屏幕继续游戏</div>
+                <div class="celebrate-title" id="celebrateTitle">恭喜你合成大月巴！</div>
+                <div class="celebrate-subtitle" id="celebrateSubtitle">点击屏幕继续游戏</div>
             </div>
 
             <div class="game-over-overlay" id="gameOverOverlay">
@@ -762,6 +823,321 @@
             const statsScroll = document.getElementById('statsScroll');
             const statsCloseBtn = document.getElementById('statsCloseBtn');
             const achievementToast = document.getElementById('achievementToast');
+            const scoreLabel = document.getElementById('scoreLabel');
+            const hsLabel = document.getElementById('hsLabel');
+            const nextLabel = document.getElementById('nextLabel');
+            const leaderboardTitle = document.getElementById('leaderboardTitle');
+            const statsPanelTitle = document.getElementById('statsPanelTitle');
+            const celebrateTitle = document.getElementById('celebrateTitle');
+            const celebrateSubtitle = document.getElementById('celebrateSubtitle');
+            const langBtn = document.getElementById('langBtn');
+            const langOverlay = document.getElementById('langOverlay');
+            const langList = document.getElementById('langList');
+            const langCloseBtn = document.getElementById('langCloseBtn');
+            const langPanelTitle = document.getElementById('langPanelTitle');
+
+            // ==========================================
+            // 多语言（中文 / English / 日本語 / 한국어）
+            // ==========================================
+            const LANG_KEY = 'mergeYueBaLang_v1';
+            const LANGS = [
+                { code: 'zh', label: '中文' },
+                { code: 'en', label: 'English' },
+                { code: 'ja', label: '日本語' },
+                { code: 'ko', label: '한국어' }
+            ];
+
+            const I18N = {
+                zh: {
+                    appTitle: '合成大月巴',
+                    scoreLabel: '分数',
+                    bestLabel: '最高',
+                    nextLabel: '下一个',
+                    btnSound: '切换音效',
+                    btnLeaderboard: '排行榜',
+                    btnStats: '数据统计',
+                    btnLang: '语言',
+                    langPanelTitle: '🌐 语言',
+                    lbPanelTitle: '🏆 排行榜',
+                    statsPanelTitle: '📊 数据统计',
+                    close: '关闭',
+                    lbEmpty: '还没有记录，快来挑战吧！',
+                    toastTitle: '成就解锁',
+                    celebrateTitle: '恭喜你合成大月巴！',
+                    celebrateSubtitle: '点击屏幕继续游戏',
+                    gameOverTitle: '游戏结束',
+                    scorePrefix: '得分：',
+                    highScorePrefix: '最高分：',
+                    restart: '再来一局',
+                    hint: '点击或触摸释放月巴 | 两个相同月巴碰到一起即可合成',
+                    dangerFullMsg: '这里有太多的月巴！',
+                    dangerLine: '⚠ 警戒线',
+                    banana: '月巴',
+                    none: '暂无',
+                    daysUnit: '{n}天',
+                    timesUnit: '{n} 次',
+                    overviewTitle: '生涯总览',
+                    gamesPlayed: '游玩局数',
+                    avgScore: '平均分',
+                    totalTime: '累计时长',
+                    grandMerges: '合成大月巴',
+                    totalMerges: '累计合成',
+                    totalDrops: '释放月巴',
+                    maxStreak: '最长连续',
+                    firstPlay: '首次游玩',
+                    sessionRecordTitle: '单局纪录',
+                    maxCombo: '最高连锁',
+                    bestLevel: '最高合成等级',
+                    longestGame: '最长单局',
+                    fastestGrand: '最快大月巴',
+                    achTitle: '成就',
+                    levelDistTitle: '合成数量分布',
+                    calendarTitle: '游玩日历（近 12 周）',
+                    less: '少',
+                    more: '多',
+                    dur_hm: '{h}时{m}分',
+                    dur_ms: '{m}分{s}秒',
+                    dur_s: '{s}秒'
+                },
+                en: {
+                    appTitle: 'Merge Banny',
+                    scoreLabel: 'Score',
+                    bestLabel: 'Best',
+                    nextLabel: 'Next',
+                    btnSound: 'Toggle sound',
+                    btnLeaderboard: 'Leaderboard',
+                    btnStats: 'Statistics',
+                    btnLang: 'Language',
+                    langPanelTitle: '🌐 Language',
+                    lbPanelTitle: '🏆 Leaderboard',
+                    statsPanelTitle: '📊 Statistics',
+                    close: 'Close',
+                    lbEmpty: 'No records yet — come and take the challenge!',
+                    toastTitle: 'Achievement Unlocked',
+                    celebrateTitle: 'You made the Big Banny!',
+                    celebrateSubtitle: 'Tap the screen to continue',
+                    gameOverTitle: 'Game Over',
+                    scorePrefix: 'Score: ',
+                    highScorePrefix: 'Best: ',
+                    restart: 'Play Again',
+                    hint: 'Tap or touch to drop Banny | Two matching Banny merge into one',
+                    dangerFullMsg: 'Too many Banny here!',
+                    dangerLine: '⚠ Danger line',
+                    banana: 'Banny',
+                    none: 'N/A',
+                    daysUnit: '{n} days',
+                    timesUnit: '{n}×',
+                    overviewTitle: 'Career Overview',
+                    gamesPlayed: 'Games Played',
+                    avgScore: 'Avg. Score',
+                    totalTime: 'Total Time',
+                    grandMerges: 'Big Banny Merges',
+                    totalMerges: 'Total Merges',
+                    totalDrops: 'Banny Dropped',
+                    maxStreak: 'Best Streak',
+                    firstPlay: 'First Played',
+                    sessionRecordTitle: 'Best Run',
+                    maxCombo: 'Max Combo',
+                    bestLevel: 'Highest Level',
+                    longestGame: 'Longest Game',
+                    fastestGrand: 'Fastest Big Banny',
+                    achTitle: 'Achievements',
+                    levelDistTitle: 'Merge Distribution',
+                    calendarTitle: 'Play Calendar (Last 12 Weeks)',
+                    less: 'Less',
+                    more: 'More',
+                    dur_hm: '{h}h {m}m',
+                    dur_ms: '{m}m {s}s',
+                    dur_s: '{s}s'
+                },
+                ja: {
+                    appTitle: 'Banny を合成',
+                    scoreLabel: 'スコア',
+                    bestLabel: 'ベスト',
+                    nextLabel: 'つぎ',
+                    btnSound: 'サウンド切替',
+                    btnLeaderboard: 'ランキング',
+                    btnStats: 'データ',
+                    btnLang: '言語',
+                    langPanelTitle: '🌐 言語',
+                    lbPanelTitle: '🏆 ランキング',
+                    statsPanelTitle: '📊 データ',
+                    close: '閉じる',
+                    lbEmpty: 'まだ記録がありません。挑戦してみよう！',
+                    toastTitle: '実績解除',
+                    celebrateTitle: '大Banny 完成！',
+                    celebrateSubtitle: '画面をタップして続ける',
+                    gameOverTitle: 'ゲームオーバー',
+                    scorePrefix: 'スコア：',
+                    highScorePrefix: 'ベスト：',
+                    restart: 'もう一度',
+                    hint: 'タップして Banny を落とそう | 同じ Banny どうしが当たると合成',
+                    dangerFullMsg: 'Banny が多すぎる！',
+                    dangerLine: '⚠ 警告ライン',
+                    banana: 'Banny',
+                    none: 'なし',
+                    daysUnit: '{n}日',
+                    timesUnit: '{n}回',
+                    overviewTitle: '通算データ',
+                    gamesPlayed: 'プレイ回数',
+                    avgScore: '平均スコア',
+                    totalTime: '合計時間',
+                    grandMerges: '大Banny合成',
+                    totalMerges: '合成回数',
+                    totalDrops: 'Banny を落とした数',
+                    maxStreak: '最長連続',
+                    firstPlay: '初プレイ',
+                    sessionRecordTitle: 'ベスト記録',
+                    maxCombo: '最大連鎖',
+                    bestLevel: '最高合成レベル',
+                    longestGame: '最長プレイ',
+                    fastestGrand: '最速大Banny',
+                    achTitle: '実績',
+                    levelDistTitle: '合成数分布',
+                    calendarTitle: 'プレイカレンダー（直近12週）',
+                    less: '少',
+                    more: '多',
+                    dur_hm: '{h}時間{m}分',
+                    dur_ms: '{m}分{s}秒',
+                    dur_s: '{s}秒'
+                },
+                ko: {
+                    appTitle: 'Banny 합치기',
+                    scoreLabel: '점수',
+                    bestLabel: '최고',
+                    nextLabel: '다음',
+                    btnSound: '소리 전환',
+                    btnLeaderboard: '순위',
+                    btnStats: '통계',
+                    btnLang: '언어',
+                    langPanelTitle: '🌐 언어',
+                    lbPanelTitle: '🏆 순위',
+                    statsPanelTitle: '📊 통계',
+                    close: '닫기',
+                    lbEmpty: '아직 기록이 없어요. 도전해 보세요!',
+                    toastTitle: '업적 달성',
+                    celebrateTitle: '큰 Banny 완성!',
+                    celebrateSubtitle: '화면을 탭하여 계속',
+                    gameOverTitle: '게임 오버',
+                    scorePrefix: '점수: ',
+                    highScorePrefix: '최고 점수: ',
+                    restart: '다시 하기',
+                    hint: '탭해서 Banny를 떨어뜨리세요 | 같은 Banny끼리 만나면 합쳐져요',
+                    dangerFullMsg: 'Banny가 너무 많아요!',
+                    dangerLine: '⚠ 경계선',
+                    banana: 'Banny',
+                    none: '없음',
+                    daysUnit: '{n}일',
+                    timesUnit: '{n}회',
+                    overviewTitle: '전체 기록',
+                    gamesPlayed: '플레이 횟수',
+                    avgScore: '평균 점수',
+                    totalTime: '총 플레이 시간',
+                    grandMerges: '큰 Banny 합성',
+                    totalMerges: '총 합성',
+                    totalDrops: 'Banny 드롭',
+                    maxStreak: '최장 연속',
+                    firstPlay: '첫 플레이',
+                    sessionRecordTitle: '한 판 기록',
+                    maxCombo: '최대 콤보',
+                    bestLevel: '최고 합성 단계',
+                    longestGame: '최장 플레이',
+                    fastestGrand: '최단 큰 Banny',
+                    achTitle: '업적',
+                    levelDistTitle: '합성 분포',
+                    calendarTitle: '플레이 캘린더 (최근 12주)',
+                    less: '적음',
+                    more: '많음',
+                    dur_hm: '{h}시간 {m}분',
+                    dur_ms: '{m}분 {s}초',
+                    dur_s: '{s}초'
+                }
+            };
+
+            function getSavedLang() {
+                try {
+                    const v = localStorage.getItem(LANG_KEY);
+                    return (v && I18N[v]) ? v : 'zh';
+                } catch (e) { return 'zh'; }
+            }
+            let currentLang = getSavedLang();
+
+            function t(key, vars) {
+                const dict = I18N[currentLang] || I18N.zh;
+                let s = dict[key];
+                if (s === undefined) s = I18N.zh[key];
+                if (s === undefined) return key;
+                if (vars) { for (const k in vars) s = s.split('{' + k + '}').join(vars[k]); }
+                return s;
+            }
+            function achName(a) { return (a.name && (a.name[currentLang] || a.name.zh)) || a.id; }
+            function achDesc(a) { return (a.desc && (a.desc[currentLang] || a.desc.zh)) || ''; }
+
+            function renderLangList() {
+                langList.innerHTML = '';
+                for (const lang of LANGS) {
+                    const opt = document.createElement('div');
+                    opt.className = 'lang-option' + (lang.code === currentLang ? ' active' : '');
+                    opt.textContent = lang.label;
+                    opt.addEventListener('click', (e) => { e.stopPropagation(); setLanguage(lang.code); });
+                    opt.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); setLanguage(lang.code); }, { passive: false });
+                    langList.appendChild(opt);
+                }
+            }
+
+            function applyLanguage() {
+                document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : currentLang;
+                document.title = t('appTitle');
+
+                scoreLabel.textContent = t('scoreLabel');
+                hsLabel.textContent = t('bestLabel');
+                nextLabel.textContent = t('nextLabel');
+                soundToggleBtn.title = t('btnSound');
+                leaderboardBtn.title = t('btnLeaderboard');
+                statsBtn.title = t('btnStats');
+                langBtn.title = t('btnLang');
+                langPanelTitle.textContent = t('langPanelTitle');
+                leaderboardTitle.textContent = t('lbPanelTitle');
+                statsPanelTitle.textContent = t('statsPanelTitle');
+                langCloseBtn.textContent = t('close');
+                leaderboardCloseBtn.textContent = t('close');
+                statsCloseBtn.textContent = t('close');
+                celebrateTitle.textContent = t('celebrateTitle');
+                celebrateSubtitle.textContent = t('celebrateSubtitle');
+                gameOverTitle.textContent = t('gameOverTitle');
+                gameOverScore.textContent = t('scorePrefix') + score;
+                gameOverHighScore.textContent = t('highScorePrefix') + highScore;
+                restartBtn.textContent = t('restart');
+                hintTextOuter.textContent = t('hint');
+
+                renderLangList();
+                if (leaderboardOverlay.classList.contains('active')) renderLeaderboard();
+                if (statsOverlay.classList.contains('active')) renderStats();
+            }
+
+            function setLanguage(code) {
+                if (!I18N[code]) return;
+                currentLang = code;
+                try { localStorage.setItem(LANG_KEY, code); } catch (e) {}
+                applyLanguage();
+                hideLangPanel();
+            }
+
+            function showLangPanel() { renderLangList(); langOverlay.classList.add('active'); }
+            function hideLangPanel() { langOverlay.classList.remove('active'); }
+            function toggleLangPanel(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (langOverlay.classList.contains('active')) hideLangPanel();
+                else showLangPanel();
+            }
+            langBtn.addEventListener('click', toggleLangPanel);
+            langBtn.addEventListener('touchstart', toggleLangPanel, { passive: false });
+            langBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+            langBtn.addEventListener('touchend', (e) => e.stopPropagation());
+            langCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); hideLangPanel(); });
+            langCloseBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); hideLangPanel(); });
+            langOverlay.addEventListener('click', (e) => { if (e.target === langOverlay) hideLangPanel(); });
 
             // ==========================================
             // 音效配置及开关控制
@@ -881,7 +1257,7 @@
                 if (list.length === 0) {
                     const empty = document.createElement('li');
                     empty.className = 'leaderboard-empty';
-                    empty.textContent = '还没有记录，快来挑战吧！';
+                    empty.textContent = t('lbEmpty');
                     leaderboardList.appendChild(empty);
                     return;
                 }
@@ -979,40 +1355,108 @@
             let lastAchCheck = 0; // 上次时间类成就检测的时间戳
 
             const ACHIEVEMENTS = [
-                { id: 'first_merge', icon: '🧩', name: '初次合成', desc: '完成第一次月巴合成' },
-                { id: 'level3', icon: '🔵', name: '小有所成', desc: '合成出月巴3' },
-                { id: 'level5', icon: '🟣', name: '渐入佳境', desc: '合成出月巴5' },
-                { id: 'level7', icon: '🟠', name: '登峰造极', desc: '合成出月巴7' },
-                { id: 'level9', icon: '🟢', name: '炉火纯青', desc: '合成出月巴9' },
-                { id: 'grand', icon: '🌕', name: '合成大月巴', desc: '合成出满级月巴10' },
-                { id: 'combo5', icon: '⚡', name: '连锁反应', desc: '单局达成 5 连锁' },
-                { id: 'combo10', icon: '🔥', name: '连锁狂人', desc: '单局达成 10 连锁' },
-                { id: 'score1000', icon: '💯', name: '千分达成', desc: '单局得分达到 1000' },
-                { id: 'score5000', icon: '🎯', name: '五千分', desc: '单局得分达到 5000' },
-                { id: 'score10000', icon: '👑', name: '万分王者', desc: '单局得分达到 10000' },
-                { id: 'score20000', icon: '💎', name: '两万分', desc: '单局得分达到 20000' },
-                { id: 'score30000', icon: '🌟', name: '三万分', desc: '单局得分达到 30000' },
-                { id: 'score50000', icon: '🏆', name: '五万分大神', desc: '单局得分达到 50000' },
-                { id: 'games10', icon: '🎮', name: '常客', desc: '累计游玩 10 局' },
-                { id: 'games50', icon: '🏅', name: '忠实玩家', desc: '累计游玩 50 局' },
-                { id: 'daily3', icon: '📅', name: '三日不辍', desc: '连续 3 天游玩' },
-                { id: 'combo15', icon: '🌪️', name: '连锁风暴', desc: '单局达成 15 连锁' },
-                { id: 'combo20', icon: '☄️', name: '连锁之神', desc: '单局达成 20 连锁' },
-                { id: 'drops100', icon: '👆', name: '百投不误', desc: '累计释放月巴 100 次' },
-                { id: 'drops1000', icon: '💪', name: '千锤百炼', desc: '累计释放月巴 1000 次' },
-                { id: 'merges100', icon: '🧪', name: '合成百次', desc: '累计合成 100 次' },
-                { id: 'merges1000', icon: '⚗️', name: '合成大师', desc: '累计合成 1000 次' },
-                { id: 'grand3', icon: '🌕', name: '三星连珠', desc: '累计合成 3 次大月巴' },
-                { id: 'grand10', icon: '🌠', name: '月巴之王', desc: '累计合成 10 次大月巴' },
-                { id: 'fastGrand', icon: '⏱️', name: '速通好手', desc: '3 分钟内合成出大月巴' },
-                { id: 'fastGrand60', icon: '🚀', name: '神速月巴', desc: '1 分钟内合成出大月巴' },
-                { id: 'longgame5', icon: '🕐', name: '持久战', desc: '单局时长达到 5 分钟' },
-                { id: 'longgame10', icon: '⏳', name: '十年磨一剑', desc: '单局时长达到 10 分钟' },
-                { id: 'games100', icon: '🎖️', name: '百局老将', desc: '累计游玩 100 局' },
-                { id: 'daily7', icon: '🗓️', name: '一周坚持', desc: '连续 7 天游玩' },
-                { id: 'totalScore100k', icon: '📈', name: '十万总分', desc: '生涯累计总分达到 100000' },
-                { id: 'totalScore500k', icon: '📊', name: '五十万总分', desc: '生涯累计总分达到 500000' },
-                { id: 'fullHouse', icon: '🧊', name: '满堂彩', desc: '单局合成过所有等级（月巴2~10）' },
+                { id: 'first_merge', icon: '🧩',
+                  name: { zh: '初次合成', en: 'First Merge', ja: '初めての合成', ko: '첫 합성' },
+                  desc: { zh: '完成第一次月巴合成', en: 'Complete your first Banny merge', ja: '初めて Banny を合成する', ko: '첫 Banny 합성 완료' } },
+                { id: 'level3', icon: '🔵',
+                  name: { zh: '小有所成', en: 'Getting Started', ja: '小さな成果', ko: '첫 성과' },
+                  desc: { zh: '合成出月巴3', en: 'Merge a Banny 3', ja: 'Banny 3 を合成する', ko: 'Banny 3 합성' } },
+                { id: 'level5', icon: '🟣',
+                  name: { zh: '渐入佳境', en: 'In the Groove', ja: '好調', ko: '가속도' },
+                  desc: { zh: '合成出月巴5', en: 'Merge a Banny 5', ja: 'Banny 5 を合成する', ko: 'Banny 5 합성' } },
+                { id: 'level7', icon: '🟠',
+                  name: { zh: '登峰造极', en: 'Peak Form', ja: '絶頂', ko: '정점' },
+                  desc: { zh: '合成出月巴7', en: 'Merge a Banny 7', ja: 'Banny 7 を合成する', ko: 'Banny 7 합성' } },
+                { id: 'level9', icon: '🟢',
+                  name: { zh: '炉火纯青', en: 'Mastery', ja: '円熟', ko: '숙련' },
+                  desc: { zh: '合成出月巴9', en: 'Merge a Banny 9', ja: 'Banny 9 を合成する', ko: 'Banny 9 합성' } },
+                { id: 'grand', icon: '🌕',
+                  name: { zh: '合成大月巴', en: 'Big Banny', ja: '大Banny', ko: '큰 Banny' },
+                  desc: { zh: '合成出满级月巴10', en: 'Merge the max-level Banny 10', ja: '最大レベル Banny 10 を合成する', ko: '최고 레벨 Banny 10 합성' } },
+                { id: 'combo5', icon: '⚡',
+                  name: { zh: '连锁反应', en: 'Chain Reaction', ja: '連鎖反応', ko: '연쇄 반응' },
+                  desc: { zh: '单局达成 5 连锁', en: 'Reach a 5-chain in one run', ja: '1プレイで5連鎖を達成', ko: '한 판에서 5연쇄 달성' } },
+                { id: 'combo10', icon: '🔥',
+                  name: { zh: '连锁狂人', en: 'Combo Fiend', ja: '連鎖中毒', ko: '콤보 중독' },
+                  desc: { zh: '单局达成 10 连锁', en: 'Reach a 10-chain in one run', ja: '1プレイで10連鎖を達成', ko: '한 판에서 10연쇄 달성' } },
+                { id: 'score1000', icon: '💯',
+                  name: { zh: '千分达成', en: 'Thousand Club', ja: '1000点達成', ko: '1000점 달성' },
+                  desc: { zh: '单局得分达到 1000', en: 'Score 1000 in one run', ja: '1プレイで1000点に到達', ko: '한 판에서 1000점 달성' } },
+                { id: 'score5000', icon: '🎯',
+                  name: { zh: '五千分', en: 'Five Thousand', ja: '5000点', ko: '5000점' },
+                  desc: { zh: '单局得分达到 5000', en: 'Score 5000 in one run', ja: '1プレイで5000点に到達', ko: '한 판에서 5000점 달성' } },
+                { id: 'score10000', icon: '👑',
+                  name: { zh: '万分王者', en: 'Ten Thousand King', ja: '1万点の王者', ko: '만 점의 왕' },
+                  desc: { zh: '单局得分达到 10000', en: 'Score 10000 in one run', ja: '1プレイで10000点に到達', ko: '한 판에서 10000점 달성' } },
+                { id: 'score20000', icon: '💎',
+                  name: { zh: '两万分', en: 'Twenty Thousand', ja: '2万点', ko: '2만 점' },
+                  desc: { zh: '单局得分达到 20000', en: 'Score 20000 in one run', ja: '1プレイで20000点に到達', ko: '한 판에서 20000점 달성' } },
+                { id: 'score30000', icon: '🌟',
+                  name: { zh: '三万分', en: 'Thirty Thousand', ja: '3万点', ko: '3만 점' },
+                  desc: { zh: '单局得分达到 30000', en: 'Score 30000 in one run', ja: '1プレイで30000点に到達', ko: '한 판에서 30000점 달성' } },
+                { id: 'score50000', icon: '🏆',
+                  name: { zh: '五万分大神', en: 'Fifty Thousand God', ja: '5万点の神', ko: '5만 점의 신' },
+                  desc: { zh: '单局得分达到 50000', en: 'Score 50000 in one run', ja: '1プレイで50000点に到達', ko: '한 판에서 50000점 달성' } },
+                { id: 'games10', icon: '🎮',
+                  name: { zh: '常客', en: 'Regular', ja: '常連', ko: '단골' },
+                  desc: { zh: '累计游玩 10 局', en: 'Play 10 games in total', ja: '通算10プレイ', ko: '누적 10판 플레이' } },
+                { id: 'games50', icon: '🏅',
+                  name: { zh: '忠实玩家', en: 'Loyal Player', ja: '忠実なプレイヤー', ko: '충성 플레이어' },
+                  desc: { zh: '累计游玩 50 局', en: 'Play 50 games in total', ja: '通算50プレイ', ko: '누적 50판 플레이' } },
+                { id: 'daily3', icon: '📅',
+                  name: { zh: '三日不辍', en: 'Three-Day Streak', ja: '3日連続', ko: '3일 연속' },
+                  desc: { zh: '连续 3 天游玩', en: 'Play 3 days in a row', ja: '3日連続でプレイ', ko: '3일 연속 플레이' } },
+                { id: 'combo15', icon: '🌪️',
+                  name: { zh: '连锁风暴', en: 'Combo Storm', ja: '連鎖の嵐', ko: '연쇄 폭풍' },
+                  desc: { zh: '单局达成 15 连锁', en: 'Reach a 15-chain in one run', ja: '1プレイで15連鎖を達成', ko: '한 판에서 15연쇄 달성' } },
+                { id: 'combo20', icon: '☄️',
+                  name: { zh: '连锁之神', en: 'Combo God', ja: '連鎖の神', ko: '연쇄의 신' },
+                  desc: { zh: '单局达成 20 连锁', en: 'Reach a 20-chain in one run', ja: '1プレイで20連鎖を達成', ko: '한 판에서 20연쇄 달성' } },
+                { id: 'drops100', icon: '👆',
+                  name: { zh: '百投不误', en: 'Hundred Drops', ja: '100投', ko: '100번 드롭' },
+                  desc: { zh: '累计释放月巴 100 次', en: 'Drop Banny 100 times in total', ja: '通算100回 Banny を落とす', ko: '누적 100회 Banny 드롭' } },
+                { id: 'drops1000', icon: '💪',
+                  name: { zh: '千锤百炼', en: 'Thousand Drops', ja: '1000投', ko: '1000번 드롭' },
+                  desc: { zh: '累计释放月巴 1000 次', en: 'Drop Banny 1000 times in total', ja: '通算1000回 Banny を落とす', ko: '누적 1000회 Banny 드롭' } },
+                { id: 'merges100', icon: '🧪',
+                  name: { zh: '合成百次', en: 'Hundred Merges', ja: '合成100回', ko: '100번 합성' },
+                  desc: { zh: '累计合成 100 次', en: 'Merge 100 times in total', ja: '通算100回合成', ko: '누적 100회 합성' } },
+                { id: 'merges1000', icon: '⚗️',
+                  name: { zh: '合成大师', en: 'Merge Master', ja: '合成マスター', ko: '합성 마스터' },
+                  desc: { zh: '累计合成 1000 次', en: 'Merge 1000 times in total', ja: '通算1000回合成', ko: '누적 1000회 합성' } },
+                { id: 'grand3', icon: '🌕',
+                  name: { zh: '三星连珠', en: 'Triple Big Banny', ja: '大Banny三連', ko: '큰 Banny 3회' },
+                  desc: { zh: '累计合成 3 次大月巴', en: 'Merge the Big Banny 3 times', ja: '大Banny を3回合成する', ko: '큰 Banny 3회 합성' } },
+                { id: 'grand10', icon: '🌠',
+                  name: { zh: '月巴之王', en: 'Banny King', ja: 'Banny の王', ko: 'Banny 왕' },
+                  desc: { zh: '累计合成 10 次大月巴', en: 'Merge the Big Banny 10 times', ja: '大Banny を10回合成する', ko: '큰 Banny 10회 합성' } },
+                { id: 'fastGrand', icon: '⏱️',
+                  name: { zh: '速通好手', en: 'Speedrunner', ja: 'スピード攻略', ko: '스피드 러너' },
+                  desc: { zh: '3 分钟内合成出大月巴', en: 'Merge the Big Banny within 3 minutes', ja: '3分以内に大Banny を合成する', ko: '3분 안에 큰 Banny 합성' } },
+                { id: 'fastGrand60', icon: '🚀',
+                  name: { zh: '神速月巴', en: 'Lightning Banny', ja: '神速 Banny', ko: '신속 Banny' },
+                  desc: { zh: '1 分钟内合成出大月巴', en: 'Merge the Big Banny within 1 minute', ja: '1分以内に大Banny を合成する', ko: '1분 안에 큰 Banny 합성' } },
+                { id: 'longgame5', icon: '🕐',
+                  name: { zh: '持久战', en: 'Endurance', ja: '持久戦', ko: '지구전' },
+                  desc: { zh: '单局时长达到 5 分钟', en: 'Play a single run for 5 minutes', ja: '1プレイが5分に到達', ko: '한 판 5분 플레이' } },
+                { id: 'longgame10', icon: '⏳',
+                  name: { zh: '十年磨一剑', en: 'Marathon', ja: '10分の死闘', ko: '마라톤' },
+                  desc: { zh: '单局时长达到 10 分钟', en: 'Play a single run for 10 minutes', ja: '1プレイが10分に到達', ko: '한 판 10분 플레이' } },
+                { id: 'games100', icon: '🎖️',
+                  name: { zh: '百局老将', en: 'Hundred Games', ja: '100戦の古兵', ko: '100판 고수' },
+                  desc: { zh: '累计游玩 100 局', en: 'Play 100 games in total', ja: '通算100プレイ', ko: '누적 100판 플레이' } },
+                { id: 'daily7', icon: '🗓️',
+                  name: { zh: '一周坚持', en: 'Seven-Day Streak', ja: '7日連続', ko: '7일 연속' },
+                  desc: { zh: '连续 7 天游玩', en: 'Play 7 days in a row', ja: '7日連続でプレイ', ko: '7일 연속 플레이' } },
+                { id: 'totalScore100k', icon: '📈',
+                  name: { zh: '十万总分', en: '100K Total', ja: '通算10万点', ko: '누적 10만 점' },
+                  desc: { zh: '生涯累计总分达到 100000', en: 'Reach 100000 total career score', ja: '通算スコアが100000に到達', ko: '누적 총점 100000 달성' } },
+                { id: 'totalScore500k', icon: '📊',
+                  name: { zh: '五十万总分', en: '500K Total', ja: '通算50万点', ko: '누적 50만 점' },
+                  desc: { zh: '生涯累计总分达到 500000', en: 'Reach 500000 total career score', ja: '通算スコアが500000に到達', ko: '누적 총점 500000 달성' } },
+                { id: 'fullHouse', icon: '🧊',
+                  name: { zh: '满堂彩', en: 'Full House', ja: 'フルハウス', ko: '풀 하우스' },
+                  desc: { zh: '单局合成过所有等级（月巴2~10）', en: 'Merge every level (Banny 2-10) in one run', ja: '1プレイですべてのレベルを合成（Banny 2〜10）', ko: '한 판에서 모든 단계 합성 (Banny 2~10)' } },
             ];
 
             let toastShowing = false;
@@ -1032,7 +1476,7 @@
                 toastShowing = true;
                 const ach = ACHIEVEMENTS.find(a => a.id === toastQueue.shift());
                 if (!ach) { toastShowing = false; processToastQueue(); return; }
-                achievementToast.innerHTML = `<span class="toast-icon">${ach.icon}</span><div><div class="toast-title">成就解锁</div><div class="toast-name">${ach.name}</div></div>`;
+                achievementToast.innerHTML = `<span class="toast-icon">${ach.icon}</span><div><div class="toast-title">${t('toastTitle')}</div><div class="toast-name">${achName(ach)}</div></div>`;
                 achievementToast.classList.add('active');
                 setTimeout(() => {
                     achievementToast.classList.remove('active');
@@ -1093,12 +1537,12 @@
                 const h = Math.floor(totalSec / 3600);
                 const m = Math.floor((totalSec % 3600) / 60);
                 const s = totalSec % 60;
-                if (h > 0) return `${h}时${m}分`;
-                if (m > 0) return `${m}分${s}秒`;
-                return `${s}秒`;
+                if (h > 0) return t('dur_hm', { h: h, m: m });
+                if (m > 0) return t('dur_ms', { m: m, s: s });
+                return t('dur_s', { s: s });
             }
             function formatDate(ts) {
-                if (!ts) return '暂无';
+                if (!ts) return t('none');
                 const d = new Date(ts);
                 return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
             }
@@ -1121,31 +1565,31 @@
 
             function renderStats() {
                 const avgScore = stats.gamesPlayed > 0 ? Math.round(stats.totalScore / stats.gamesPlayed) : 0;
-                const bestLevelText = stats.bestSessionMaxLevel >= 0 ? '月巴' + (stats.bestSessionMaxLevel + 1) : '暂无';
+                const bestLevelText = stats.bestSessionMaxLevel >= 0 ? t('banana') + ' ' + (stats.bestSessionMaxLevel + 1) : t('none');
 
                 let html = '';
 
                 html += `<div class="stats-section">
-                    <div class="stats-section-title">生涯总览</div>
+                    <div class="stats-section-title">${t('overviewTitle')}</div>
                     <div class="stats-grid">
-                        ${buildStatCard(stats.gamesPlayed, '游玩局数')}
-                        ${buildStatCard(avgScore, '平均分')}
-                        ${buildStatCard(formatDuration(stats.totalPlayTime), '累计时长')}
-                        ${buildStatCard(stats.grandMerges + ' 次', '合成大月巴')}
-                        ${buildStatCard(stats.totalMerges, '累计合成')}
-                        ${buildStatCard(stats.totalDrops, '释放月巴')}
-                        ${buildStatCard(stats.maxStreak + ' 天', '最长连续')}
-                        ${buildStatCard(formatDate(stats.firstPlayDate), '首次游玩')}
+                        ${buildStatCard(stats.gamesPlayed, t('gamesPlayed'))}
+                        ${buildStatCard(avgScore, t('avgScore'))}
+                        ${buildStatCard(formatDuration(stats.totalPlayTime), t('totalTime'))}
+                        ${buildStatCard(t('timesUnit', { n: stats.grandMerges }), t('grandMerges'))}
+                        ${buildStatCard(stats.totalMerges, t('totalMerges'))}
+                        ${buildStatCard(stats.totalDrops, t('totalDrops'))}
+                        ${buildStatCard(t('daysUnit', { n: stats.maxStreak }), t('maxStreak'))}
+                        ${buildStatCard(formatDate(stats.firstPlayDate), t('firstPlay'))}
                     </div>
                 </div>`;
 
                 html += `<div class="stats-section">
-                    <div class="stats-section-title">单局纪录</div>
+                    <div class="stats-section-title">${t('sessionRecordTitle')}</div>
                     <div class="stats-grid">
-                        ${buildStatCard(stats.maxCombo, '最高连锁')}
-                        ${buildStatCard(bestLevelText, '最高合成等级')}
-                        ${buildStatCard(formatDuration(stats.longestGameTime), '最长单局')}
-                        ${buildStatCard(stats.fastestGrandMs ? formatDuration(stats.fastestGrandMs) : '暂无', '最快大月巴')}
+                        ${buildStatCard(stats.maxCombo, t('maxCombo'))}
+                        ${buildStatCard(bestLevelText, t('bestLevel'))}
+                        ${buildStatCard(formatDuration(stats.longestGameTime), t('longestGame'))}
+                        ${buildStatCard(stats.fastestGrandMs ? formatDuration(stats.fastestGrandMs) : t('none'), t('fastestGrand'))}
                     </div>
                 </div>`;
 
@@ -1155,12 +1599,12 @@
                     const unlocked = !!stats.unlocked[a.id];
                     achHtml += `<div class="ach-item${unlocked ? ' unlocked' : ''}">
                         <span class="ach-icon">${a.icon}</span>
-                        <div class="ach-info"><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div>
+                        <div class="ach-info"><div class="ach-name">${achName(a)}</div><div class="ach-desc">${achDesc(a)}</div></div>
                         ${unlocked ? '<span class="ach-badge">✅</span>' : ''}
                     </div>`;
                 }
                 html += `<div class="stats-section">
-                    <div class="stats-section-title">成就（${unlockedCount}/${ACHIEVEMENTS.length}）</div>
+                    <div class="stats-section-title">${t('achTitle')}（${unlockedCount}/${ACHIEVEMENTS.length}）</div>
                     <div class="ach-list">${achHtml}</div>
                 </div>`;
 
@@ -1179,7 +1623,7 @@
                     </div>`;
                 }
                 html += `<div class="stats-section">
-                    <div class="stats-section-title">合成数量分布</div>
+                    <div class="stats-section-title">${t('levelDistTitle')}</div>
                     <div class="bar-chart">${barsHtml}</div>
                 </div>`;
 
@@ -1208,11 +1652,11 @@
                     heatHtml += `<div class="heat-cell${lv > 0 ? ' lv' + lv : ''}"></div>`;
                 }
                 html += `<div class="stats-section">
-                    <div class="stats-section-title">游玩日历（近 12 周）</div>
+                    <div class="stats-section-title">${t('calendarTitle')}</div>
                     <div class="heatmap">${heatHtml}</div>
-                    <div class="heat-legend"><span>少</span>
+                    <div class="heat-legend"><span>${t('less')}</span>
                         <div class="heat-cell"></div><div class="heat-cell lv1"></div><div class="heat-cell lv2"></div><div class="heat-cell lv3"></div><div class="heat-cell lv4"></div>
-                        <span>多</span></div>
+                        <span>${t('more')}</span></div>
                 </div>`;
 
                 statsScroll.innerHTML = html;
@@ -1728,7 +2172,7 @@
                 if (isAnyAboveLine) {
                     dangerTimer++;
                     if (dangerTimer >= DANGER_TIMER_LIMIT) {
-                        endGame('这里有太多的月巴！');
+                        endGame(t('dangerFullMsg'));
                     }
                 } else {
                     if (dangerTimer > 0) {
@@ -1740,11 +2184,11 @@
             function endGame(message) {
                 gameOver = true;
                 gameOverTitle.textContent = message;
-                gameOverScore.textContent = '得分：' + score;
+                gameOverScore.textContent = t('scorePrefix') + score;
                 
                 let isNewRecord = false;
                 if (score > highScore) { highScore = score; setHighScore(highScore); updateHighScoreDisplay(); isNewRecord = true; }
-                gameOverHighScore.textContent = '最高分：' + highScore;
+                gameOverHighScore.textContent = t('highScorePrefix') + highScore;
                 if (isNewRecord) { gameOverHighScore.classList.add('new-record'); } else { gameOverHighScore.classList.remove('new-record'); }
 
                 addScoreToLeaderboard(score);
@@ -1852,7 +2296,7 @@
                 ctx.lineDashOffset = -Date.now() / 1000 * 20 * dpr; ctx.beginPath(); ctx.moveTo(10 * dpr, y); ctx.lineTo(canvasWidth - 10 * dpr, y); ctx.stroke();
                 ctx.setLineDash([]); ctx.lineDashOffset = 0;
                 const fontSize = 11 * dpr; ctx.fillStyle = 'rgba(255,140,140,0.6)'; ctx.font = `bold ${fontSize}px sans-serif`; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-                ctx.fillText('⚠ 警戒线', canvasWidth - 14 * dpr, y - 4 * dpr);
+                ctx.fillText(t('dangerLine'), canvasWidth - 14 * dpr, y - 4 * dpr);
             }
 
             // 性能优化：可复用的水果排序数组，避免每帧新建数组
@@ -1972,6 +2416,7 @@
             
             function startGame() { 
                 unlockAudio(); // 点击开始时正处于用户手势中，借此机会完成音频解锁
+                applyLanguage(); // 应用已保存的语言
                 preloadAllImages(); 
                 highScore = getHighScore(); 
                 updateHighScoreDisplay(); 
