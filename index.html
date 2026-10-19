@@ -1094,7 +1094,6 @@
                     opt.className = 'lang-option' + (lang.code === currentLang ? ' active' : '');
                     opt.textContent = lang.label;
                     opt.addEventListener('click', (e) => { e.stopPropagation(); setLanguage(lang.code); });
-                    opt.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); setLanguage(lang.code); }, { passive: false });
                     langList.appendChild(opt);
                 }
             }
@@ -1146,7 +1145,6 @@
                 else showLangPanel();
             }
             langBtn.addEventListener('click', toggleLangPanel);
-            langBtn.addEventListener('touchstart', toggleLangPanel, { passive: false });
             langBtn.addEventListener('mousedown', (e) => e.stopPropagation());
             langBtn.addEventListener('touchend', (e) => e.stopPropagation());
             langCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); hideLangPanel(); });
@@ -1171,8 +1169,10 @@
                 soundToggleBtn.textContent = isAudioMuted ? '🔇' : '🔊';
                 soundToggleBtn.style.opacity = isAudioMuted ? '0.15' : '0.25';
             }
+            // 只用 click 作为唯一触发路径：短按触摸时浏览器会先后派发 touchstart 与兼容 click，
+            // 两个都绑定会导致同一次轻点被触发两次（面板一闪而过）。viewport 已含 user-scalable=no
+            // 且 body 为 touch-action: manipulation，点击无 300ms 延迟，手感不受影响。
             soundToggleBtn.addEventListener('click', toggleAudio);
-            soundToggleBtn.addEventListener('touchstart', toggleAudio, { passive: false });
             soundToggleBtn.addEventListener('mousedown', (e) => e.stopPropagation());
             soundToggleBtn.addEventListener('touchend', (e) => e.stopPropagation());
 
@@ -1305,7 +1305,6 @@
                 else showLeaderboard();
             }
             leaderboardBtn.addEventListener('click', toggleLeaderboard);
-            leaderboardBtn.addEventListener('touchstart', toggleLeaderboard, { passive: false });
             leaderboardBtn.addEventListener('mousedown', (e) => e.stopPropagation());
             leaderboardBtn.addEventListener('touchend', (e) => e.stopPropagation());
             leaderboardCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); hideLeaderboard(); });
@@ -1686,7 +1685,6 @@
                 else showStats();
             }
             statsBtn.addEventListener('click', toggleStats);
-            statsBtn.addEventListener('touchstart', toggleStats, { passive: false });
             statsBtn.addEventListener('mousedown', (e) => e.stopPropagation());
             statsBtn.addEventListener('touchend', (e) => e.stopPropagation());
             statsCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); hideStats(); });
