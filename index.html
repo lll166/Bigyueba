@@ -1054,11 +1054,25 @@
                 }
             };
 
+            // 首次进入时跟随系统/浏览器语言，无法识别则回退中文
+            function detectLang() {
+                const list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
+                for (const raw of list) {
+                    if (!raw) continue;
+                    const code = raw.toLowerCase();
+                    if (code.indexOf('zh') === 0) return 'zh';
+                    if (code.indexOf('ja') === 0) return 'ja';
+                    if (code.indexOf('ko') === 0) return 'ko';
+                    if (code.indexOf('en') === 0) return 'en';
+                }
+                return 'zh';
+            }
             function getSavedLang() {
                 try {
                     const v = localStorage.getItem(LANG_KEY);
-                    return (v && I18N[v]) ? v : 'zh';
-                } catch (e) { return 'zh'; }
+                    if (v && I18N[v]) return v; // 用户手动选择过，优先沿用
+                } catch (e) { /* localStorage 不可用时按首次进入处理 */ }
+                return detectLang();
             }
             let currentLang = getSavedLang();
 
